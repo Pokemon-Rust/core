@@ -1,3 +1,7 @@
-fn main() {
-    println!("Hello, pokemon world!");
+use ggez::GameResult;
+
+use pokedriver::GameState;
+
+fn main() -> GameResult {
+    GameState::start()
 }
