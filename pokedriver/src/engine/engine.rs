@@ -5,7 +5,7 @@ use ggez::{conf, Context, ContextBuilder, event, GameResult, graphics, timer};
 use graphics::{DrawParam, Font};
 use cgmath::Point2;
 use crate::graphics::sprite::{PokeSprite, PokeSpriteType};
-use crate::utils::resolve;
+use crate::utils::resolver;
 
 pub struct GameState {
     dt: std::time::Duration,
@@ -20,7 +20,7 @@ impl event::EventHandler for GameState {
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
-        let desired_fps = resolve::get_fps();
+        let desired_fps = resolver::get_fps();
         while timer::check_update_time(ctx, desired_fps as u32) {
             graphics::clear(ctx, [0.1, 0.2, 0.3, 1.0].into());
             let text = graphics::Text::new((format!("{:.0}", timer::fps(ctx)), self.fps_font, 32.0));
@@ -41,7 +41,7 @@ impl GameState {
         let s = GameState {
             dt: std::time::Duration::from_nanos(0),
             fps_font: font,
-            sprite: PokeSprite::from(ctx, &"giratina-origin".to_string(), &PokeSpriteType::NormalFront)?
+            sprite: PokeSprite::from(ctx, &"pikachu".to_string(), &PokeSpriteType::NormalFront)?
         };
         Ok(s)
     }

@@ -1,6 +1,6 @@
 use ggez::{Context, GameResult, graphics};
 
-use crate::utils::resolve;
+use crate::utils::resolver;
 use cgmath::Point2;
 use ggez::graphics::DrawParam;
 use ggez::filesystem;
@@ -51,8 +51,8 @@ pub struct PokeSprite {
 
 impl PokeSprite {
     pub fn from(ctx: &mut Context, pokemon: &String, sprite_type: &PokeSpriteType) -> GameResult<PokeSprite> {
-        let sprite_vec_path = resolve::sprite_path(pokemon, sprite_type);
-        let frames: u16 = resolve::get_anim_frames(ctx, pokemon, sprite_type)?;
+        let sprite_vec_path = resolver::get_sprite_path(pokemon, sprite_type);
+        let frames: u16 = resolver::get_anim_frames(ctx, pokemon, sprite_type)?;
         println!("loaded sprite-vector with frame-count: {}", frames);
 
         let sprite = PokeSprite {
@@ -68,7 +68,7 @@ impl PokeSprite {
     pub fn draw(&mut self, ctx: &mut Context, pt: Point2<f32>) -> GameResult<()> {
         graphics::draw(ctx, &self.sprite_vec.data[self.frame_id.floor() as usize], DrawParam::new().dest(pt))?;
 
-        let desired_fps = resolve::get_fps();
+        let desired_fps = resolver::get_fps();
 
         if self.event_loop_frame_id == desired_fps - 1 {
             self.event_loop_frame_id = 0;

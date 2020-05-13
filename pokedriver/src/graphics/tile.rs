@@ -1,7 +1,7 @@
 use ggez::{Context, GameResult, graphics};
 use cgmath::{Point2};
 
-use crate::utils::resolve;
+use crate::utils::resolver;
 use ggez::graphics::DrawParam;
 
 pub struct PokeTile {
@@ -10,7 +10,7 @@ pub struct PokeTile {
 
 impl PokeTile {
     pub fn from(ctx: &mut Context, tile_type: &PokeTileTypes) -> GameResult<PokeTile> {
-        let path = resolve::tile_path(tile_type);
+        let path = resolver::get_tile_path(tile_type);
         let tile = PokeTile { tile: graphics::Image::new(ctx, path)? };
         Ok(tile)
     }

@@ -2,10 +2,10 @@ use crate::graphics::sprite::PokeSpriteType;
 use crate::graphics::tile::PokeTileTypes;
 use std::path::Path;
 use ggez::{filesystem, GameResult, GameError, Context};
-use crate::utils::resolve;
+use crate::utils::resolver;
 use serde_json::Value;
 
-pub fn sprite_path(pokemon: &String, sprite_type: &PokeSpriteType) -> String {
+pub fn get_sprite_path(pokemon: &String, sprite_type: &PokeSpriteType) -> String {
     match sprite_type {
         PokeSpriteType::NormalFront => format!("sprites/pokemon/normal-front/{}", pokemon),
         PokeSpriteType::NormalBack => format!("sprites/pokemon/normal-back/{}", pokemon),
@@ -14,7 +14,7 @@ pub fn sprite_path(pokemon: &String, sprite_type: &PokeSpriteType) -> String {
     }
 }
 
-pub fn tile_path(tile_type: &PokeTileTypes) -> String {
+pub fn get_tile_path(tile_type: &PokeTileTypes) -> String {
     match tile_type {
         PokeTileTypes::GreenPatch => String::from("/tiles/GreenPatch-1-16x16.png")
     }
@@ -27,7 +27,7 @@ pub fn get_anim_frames(ctx: &mut Context, pokemon: &String, sprite_type: &PokeSp
         Ok(file) => file,
         Err(_) => return Err(GameError::ResourceLoadError("Error reading JSON from file".to_string()))
     };
-    let sprite_vec_path = resolve::sprite_path(pokemon, sprite_type);
+    let sprite_vec_path = resolver::get_sprite_path(pokemon, sprite_type);
     let frames: u16 = match v[sprite_vec_path.clone()].as_u64() {
         Some(f) => f as u16,
         None => return Err(GameError::ResourceLoadError("Error parsing JSON from file".to_string()))
