@@ -5,6 +5,6 @@ pub mod graphics;
 pub mod engine;
 
 // private modules
-mod utils;
+pub mod utils;
 
 
