@@ -4,14 +4,14 @@ use cgmath::{Point2};
 use crate::utils::resolver;
 use ggez::graphics::DrawParam;
 
-pub struct PokeTile {
+pub struct Tile {
     tile: graphics::Image
 }
 
-impl PokeTile {
-    pub fn from(ctx: &mut Context, tile_type: &PokeTileTypes) -> GameResult<PokeTile> {
+impl Tile {
+    pub fn from(ctx: &mut Context, tile_type: &TileType) -> GameResult<Tile> {
         let path = resolver::get_tile_path(tile_type);
-        let tile = PokeTile { tile: graphics::Image::new(ctx, path)? };
+        let tile = Tile { tile: graphics::Image::new(ctx, path)? };
         Ok(tile)
     }
 
@@ -20,6 +20,6 @@ impl PokeTile {
     }
 }
 
-pub enum PokeTileTypes {
+pub enum TileType {
     GreenPatch
 }

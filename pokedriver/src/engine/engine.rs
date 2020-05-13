@@ -4,13 +4,13 @@ use conf::{Backend, ModuleConf, NumSamples, WindowMode, WindowSetup};
 use ggez::{conf, Context, ContextBuilder, event, GameResult, graphics, timer};
 use graphics::{DrawParam, Font};
 use cgmath::Point2;
-use crate::graphics::sprite::{PokeSprite, PokeSpriteType};
+use crate::graphics::sprite::{PokemonSprite, PokemonSpriteType};
 use crate::utils::resolver;
 
 pub struct GameState {
     dt: std::time::Duration,
     fps_font: Font,
-    sprite: PokeSprite,
+    sprite: PokemonSprite,
 }
 
 impl event::EventHandler for GameState {
@@ -41,7 +41,7 @@ impl GameState {
         let s = GameState {
             dt: std::time::Duration::from_nanos(0),
             fps_font: font,
-            sprite: PokeSprite::from(ctx, &"pikachu".to_string(), &PokeSpriteType::NormalFront)?,
+            sprite: PokemonSprite::from(ctx, &"pikachu".to_string(), &PokemonSpriteType::NormalFront)?,
         };
         Ok(s)
     }

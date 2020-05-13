@@ -30,27 +30,27 @@ impl SpriteVector {
 // and act as an interface between the sprite-vector
 // and the game engine.
 
-pub enum PokeSpriteType {
+pub enum PokemonSpriteType {
     NormalFront,
     NormalBack,
     ShinyFront,
     ShinyBack,
 }
 
-pub struct PokeSprite {
+pub struct PokemonSprite {
     sprite_vec: SpriteVector,
     frame_id: f32,
     n_frames: u16,
     event_loop_frame_id: u16,
 }
 
-impl PokeSprite {
-    pub fn from(ctx: &mut Context, pokemon: &String, sprite_type: &PokeSpriteType) -> GameResult<PokeSprite> {
+impl PokemonSprite {
+    pub fn from(ctx: &mut Context, pokemon: &String, sprite_type: &PokemonSpriteType) -> GameResult<PokemonSprite> {
         let sprite_vec_path = resolver::get_sprite_path(pokemon, sprite_type);
         let frames: u16 = resolver::get_anim_frames(ctx, pokemon, sprite_type)?;
         println!("loaded sprite-vector with frame-count: {}", frames);
 
-        let sprite = PokeSprite {
+        let sprite = PokemonSprite {
             sprite_vec: SpriteVector::from(ctx, &sprite_vec_path, &frames)?,
             frame_id: 0.0,
             event_loop_frame_id: 0,

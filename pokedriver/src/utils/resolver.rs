@@ -2,27 +2,27 @@ use std::path::Path;
 use ggez::{Context, filesystem, GameError, GameResult};
 use serde_json::Value;
 
-use crate::graphics::sprite::PokeSpriteType;
-use crate::graphics::tile::PokeTileTypes;
+use crate::graphics::sprite::PokemonSpriteType;
+use crate::graphics::tile::TileType;
 use crate::utils::resolver;
 
 
-pub fn get_sprite_path(pokemon: &String, sprite_type: &PokeSpriteType) -> String {
+pub fn get_sprite_path(pokemon: &String, sprite_type: &PokemonSpriteType) -> String {
     match sprite_type {
-        PokeSpriteType::NormalFront => format!("sprites/pokemon/normal-front/{}", pokemon),
-        PokeSpriteType::NormalBack => format!("sprites/pokemon/normal-back/{}", pokemon),
-        PokeSpriteType::ShinyFront => format!("sprites/pokemon/shiny-front/{}", pokemon),
-        PokeSpriteType::ShinyBack => format!("sprites/pokemon/shiny-back/{}", pokemon)
+        PokemonSpriteType::NormalFront => format!("sprites/pokemon/normal-front/{}", pokemon),
+        PokemonSpriteType::NormalBack => format!("sprites/pokemon/normal-back/{}", pokemon),
+        PokemonSpriteType::ShinyFront => format!("sprites/pokemon/shiny-front/{}", pokemon),
+        PokemonSpriteType::ShinyBack => format!("sprites/pokemon/shiny-back/{}", pokemon)
     }
 }
 
-pub fn get_tile_path(tile_type: &PokeTileTypes) -> String {
+pub fn get_tile_path(tile_type: &TileType) -> String {
     match tile_type {
-        PokeTileTypes::GreenPatch => String::from("/tiles/GreenPatch-1-16x16.png")
+        TileType::GreenPatch => String::from("/tiles/GreenPatch-1-16x16.png")
     }
 }
 
-pub fn get_anim_frames(ctx: &mut Context, pokemon: &String, sprite_type: &PokeSpriteType) -> GameResult<u16> {
+pub fn get_anim_frames(ctx: &mut Context, pokemon: &String, sprite_type: &PokemonSpriteType) -> GameResult<u16> {
     let json_file = Path::new("/spritedata/framecount.json");
     let file = filesystem::open(ctx, json_file)?;
     let v: Value = match serde_json::from_reader(file) {
