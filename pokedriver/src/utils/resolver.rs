@@ -1,9 +1,11 @@
+use std::path::Path;
+use ggez::{Context, filesystem, GameError, GameResult};
+use serde_json::Value;
+
 use crate::graphics::sprite::PokeSpriteType;
 use crate::graphics::tile::PokeTileTypes;
-use std::path::Path;
-use ggez::{filesystem, GameResult, GameError, Context};
 use crate::utils::resolver;
-use serde_json::Value;
+
 
 pub fn get_sprite_path(pokemon: &String, sprite_type: &PokeSpriteType) -> String {
     match sprite_type {

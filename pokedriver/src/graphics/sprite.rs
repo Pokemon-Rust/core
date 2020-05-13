@@ -1,12 +1,9 @@
+use cgmath::Point2;
 use ggez::{Context, GameResult, graphics};
+use ggez::graphics::DrawParam;
 
 use crate::utils::resolver;
-use cgmath::Point2;
-use ggez::graphics::DrawParam;
-use ggez::filesystem;
-use std::path::Path;
-use std::io::Read;
-use serde_json::Value;
+
 
 pub struct SpriteVector {
     pub data: Vec<graphics::Image>
@@ -18,10 +15,8 @@ impl SpriteVector {
 
         for i in 0..*n_frames {
             let image = graphics::Image::new(ctx, format!("{}/{}.png", sprite_path, i.to_string()))?;
-
             sprites.data.push(image);
         }
-
         Ok(sprites)
     }
 
@@ -46,7 +41,7 @@ pub struct PokeSprite {
     sprite_vec: SpriteVector,
     frame_id: f32,
     n_frames: u16,
-    event_loop_frame_id: u16
+    event_loop_frame_id: u16,
 }
 
 impl PokeSprite {

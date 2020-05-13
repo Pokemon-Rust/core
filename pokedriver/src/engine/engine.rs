@@ -41,7 +41,7 @@ impl GameState {
         let s = GameState {
             dt: std::time::Duration::from_nanos(0),
             fps_font: font,
-            sprite: PokeSprite::from(ctx, &"pikachu".to_string(), &PokeSpriteType::NormalFront)?
+            sprite: PokeSprite::from(ctx, &"pikachu".to_string(), &PokeSpriteType::NormalFront)?,
         };
         Ok(s)
     }
@@ -55,10 +55,10 @@ impl GameState {
                 samples: NumSamples::Zero,
                 vsync: true,
                 icon: "".to_string(),
-                srgb: true
+                srgb: true,
             },
             backend: Backend::default(),
-            modules: ModuleConf::default()
+            modules: ModuleConf::default(),
         };
         let cb = ContextBuilder::new("Pokemon Rust", "SphericalKat & Supercmmetry")
             .conf(conf)
