@@ -3,6 +3,10 @@ use ggez::{Context, GameResult, graphics};
 use crate::utils::resolve;
 use cgmath::Point2;
 use ggez::graphics::DrawParam;
+use ggez::filesystem;
+use std::path::Path;
+use std::io::Read;
+use serde_json::Value;
 
 pub struct SpriteVector {
     pub data: Vec<graphics::Image>
@@ -49,11 +53,8 @@ impl PokeSprite {
     //todo: implement fn draw
 
     pub fn from(ctx: &mut Context, pokemon: &String, sprite_type: PokeSpriteType) -> GameResult<PokeSprite> {
-        //todo: fetch frame count from resources.
-
-        let frames: u16 = 33;
-
-        let sprite_vec_path = resolve::sprite_path(pokemon, sprite_type);
+        let frames: u16 = resolve::get_anim_frames()?;
+        println!("{}", frames);
 
         let sprite = PokeSprite {
             sprite_vec: SpriteVector::from(ctx, &sprite_vec_path, &frames)?,
