@@ -51,7 +51,7 @@ impl PokeSprite {
     pub fn from(ctx: &mut Context, pokemon: &String, sprite_type: PokeSpriteType) -> GameResult<PokeSprite> {
         //todo: fetch frame count from resources.
 
-        let frames: u16 = 33;
+        let frames: u16 = 69;
 
         let sprite_vec_path = resolve::sprite_path(pokemon, sprite_type);
 

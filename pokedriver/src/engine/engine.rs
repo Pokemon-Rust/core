@@ -3,7 +3,6 @@ use std::path::PathBuf;
 use conf::{Backend, ModuleConf, NumSamples, WindowMode, WindowSetup};
 use ggez::{conf, Context, ContextBuilder, event, GameResult, graphics, timer};
 use graphics::{DrawParam, Font};
-use crate::graphics::tile::{PokeTile, PokeTileTypes};
 use cgmath::Point2;
 use crate::graphics::sprite::{PokeSprite, PokeSpriteType};
 use crate::utils::resolve;
@@ -42,7 +41,7 @@ impl GameState {
         let s = GameState {
             dt: std::time::Duration::from_nanos(0),
             fps_font: font,
-            sprite: PokeSprite::from(ctx, &"pikachu".to_string(), PokeSpriteType::NormalFront)?
+            sprite: PokeSprite::from(ctx, &"giratina-origin".to_string(), PokeSpriteType::NormalFront)?
         };
         Ok(s)
     }
