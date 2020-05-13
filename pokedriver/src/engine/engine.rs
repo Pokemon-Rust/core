@@ -3,10 +3,15 @@ use std::path::PathBuf;
 use conf::{Backend, ModuleConf, NumSamples, WindowMode, WindowSetup};
 use ggez::{conf, Context, ContextBuilder, event, GameResult, graphics, timer};
 use graphics::{DrawParam, Font};
+use crate::graphics::tile::{PokeTile, PokeTileTypes};
+use cgmath::Point2;
+use crate::graphics::sprite::{PokeSprite, PokeSpriteType};
+use crate::utils::resolve;
 
 pub struct GameState {
     dt: std::time::Duration,
     fps_font: Font,
+    sprite: PokeSprite,
 }
 
 impl event::EventHandler for GameState {
@@ -16,11 +21,17 @@ impl event::EventHandler for GameState {
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
-        graphics::clear(ctx, [0.1, 0.2, 0.3, 1.0].into());
-        let text = graphics::Text::new((format!("{:.0}", timer::fps(ctx)), self.fps_font, 32.0));
-        graphics::draw(ctx, &text, DrawParam::default())?;
+        let desired_fps = resolve::get_fps();
+        while timer::check_update_time(ctx, desired_fps as u32) {
+            graphics::clear(ctx, [0.1, 0.2, 0.3, 1.0].into());
+            let text = graphics::Text::new((format!("{:.0}", timer::fps(ctx)), self.fps_font, 32.0));
+            graphics::draw(ctx, &text, DrawParam::default())?;
+            self.sprite.draw(ctx, Point2::new(100.0, 100.0))?;
 
-        graphics::present(ctx)?;
+            graphics::present(ctx)?;
+        }
+
+        timer::yield_now();
         Ok(())
     }
 }
@@ -31,6 +42,7 @@ impl GameState {
         let s = GameState {
             dt: std::time::Duration::from_nanos(0),
             fps_font: font,
+            sprite: PokeSprite::from(ctx, &"pikachu".to_string(), PokeSpriteType::NormalFront)?
         };
         Ok(s)
     }
