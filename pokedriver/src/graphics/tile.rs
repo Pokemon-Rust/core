@@ -9,7 +9,7 @@ pub struct PokeTile {
 }
 
 impl PokeTile {
-    pub fn from(ctx: &mut Context, tile_type: PokeTileTypes) -> GameResult<PokeTile> {
+    pub fn from(ctx: &mut Context, tile_type: &PokeTileTypes) -> GameResult<PokeTile> {
         let path = resolve::tile_path(tile_type);
         let tile = PokeTile { tile: graphics::Image::new(ctx, path)? };
         Ok(tile)

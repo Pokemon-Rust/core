@@ -50,9 +50,9 @@ pub struct PokeSprite {
 }
 
 impl PokeSprite {
-    pub fn from(ctx: &mut Context, pokemon: &String, sprite_type: PokeSpriteType) -> GameResult<PokeSprite> {
+    pub fn from(ctx: &mut Context, pokemon: &String, sprite_type: &PokeSpriteType) -> GameResult<PokeSprite> {
         let sprite_vec_path = resolve::sprite_path(pokemon, sprite_type);
-        let frames: u16 = resolve::get_anim_frames(pokemon, &sprite_type)?;
+        let frames: u16 = resolve::get_anim_frames(ctx, pokemon, sprite_type)?;
         println!("loaded sprite-vector with frame-count: {}", frames);
 
         let sprite = PokeSprite {

@@ -41,7 +41,7 @@ impl GameState {
         let s = GameState {
             dt: std::time::Duration::from_nanos(0),
             fps_font: font,
-            sprite: PokeSprite::from(ctx, &"giratina-origin".to_string(), PokeSpriteType::NormalFront)?
+            sprite: PokeSprite::from(ctx, &"giratina-origin".to_string(), &PokeSpriteType::NormalFront)?
         };
         Ok(s)
     }

@@ -1,11 +1,11 @@
 use crate::graphics::sprite::PokeSpriteType;
 use crate::graphics::tile::PokeTileTypes;
 use std::path::Path;
-use ggez::{filesystem, GameResult, GameError};
+use ggez::{filesystem, GameResult, GameError, Context};
 use crate::utils::resolve;
 use serde_json::Value;
 
-pub fn sprite_path(pokemon: &String, sprite_type: PokeSpriteType) -> String {
+pub fn sprite_path(pokemon: &String, sprite_type: &PokeSpriteType) -> String {
     match sprite_type {
         PokeSpriteType::NormalFront => format!("sprites/pokemon/normal-front/{}", pokemon),
         PokeSpriteType::NormalBack => format!("sprites/pokemon/normal-back/{}", pokemon),
@@ -14,13 +14,13 @@ pub fn sprite_path(pokemon: &String, sprite_type: PokeSpriteType) -> String {
     }
 }
 
-pub fn tile_path(tile_type: PokeTileTypes) -> String {
+pub fn tile_path(tile_type: &PokeTileTypes) -> String {
     match tile_type {
         PokeTileTypes::GreenPatch => String::from("/tiles/GreenPatch-1-16x16.png")
     }
 }
 
-pub fn get_anim_frames(pokemon: &String, sprite_type: &PokeSpriteType) -> GameResult<u16> {
+pub fn get_anim_frames(ctx: &mut Context, pokemon: &String, sprite_type: &PokeSpriteType) -> GameResult<u16> {
     let json_file = Path::new("/spritedata/framecount.json");
     let file = filesystem::open(ctx, json_file)?;
     let v: Value = match serde_json::from_reader(file) {
