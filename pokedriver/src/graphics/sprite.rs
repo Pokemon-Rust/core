@@ -1,4 +1,4 @@
-use crate::utils::path;
+use crate::utils::resolve;
 
 use ggez::{graphics, Context, GameResult};
 
@@ -49,14 +49,16 @@ impl PokeSprite {
 
         let frames: u32 = 10;
 
-        let sprite_vec_path = &path::resolve_sprite_path(pokemon, sprite_type);
+        let sprite_vec_path = resolve::sprite_path(pokemon, sprite_type);
 
         let sprite = PokeSprite {
-            sprite_vec: SpriteVector::from(ctx, sprite_vec_path, &frames)?,
+            sprite_vec: SpriteVector::from(ctx, &sprite_vec_path, &frames)?,
         };
 
         Ok(sprite)
     }
+
+
 }
 
 
