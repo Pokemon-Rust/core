@@ -5,6 +5,7 @@ use serde_json::Value;
 use crate::graphics::sprite::PokemonSpriteType;
 use crate::graphics::tile::TileType;
 use crate::utils::resolver;
+use crate::graphics::actor::{ActorAction, ActorDirection, ActorAttributes};
 
 
 pub fn get_sprite_path(pokemon: &String, sprite_type: &PokemonSpriteType) -> String {
@@ -35,6 +36,37 @@ pub fn get_anim_frames(ctx: &mut Context, pokemon: &String, sprite_type: &Pokemo
         None => return Err(GameError::ResourceLoadError("Error parsing JSON from file".to_string()))
     };
     Ok(frames)
+}
+
+pub fn get_actor_path(ctx: &mut Context, actor: &String, attributes: &ActorAttributes) -> GameResult<String> {
+    let mut base_path = "/testdata/sprites/actor/".to_string();
+    let actor_direction= &attributes.direction;
+    let actor_action = &attributes.action;
+
+    match actor_direction {
+        ActorDirection::North => base_path.push_str("north/"),
+        ActorDirection::South => base_path.push_str("south/"),
+        ActorDirection::East => base_path.push_str("east/"),
+        ActorDirection::West => base_path.push_str("west/"),
+    }
+
+    base_path.push_str(&actor.to_string());
+
+    match actor_action {
+        ActorAction::Stand => base_path.push_str("-stand"),
+        ActorAction::Walk1 => base_path.push_str("-walk-1"),
+        ActorAction::Walk2 => base_path.push_str("-walk-2"),
+    }
+
+    // finally push the file extension.
+    base_path.push_str(".png");
+
+    // check if the file exists in the filesystem or not.
+    if filesystem::is_file(ctx, &base_path) {
+        Ok(base_path)
+    } else {
+        Err(GameError::ResourceLoadError("The requested resource was not found".to_string()))
+    }
 }
 
 #[inline]

@@ -4,13 +4,37 @@ use conf::{Backend, ModuleConf, NumSamples, WindowMode, WindowSetup};
 use ggez::{conf, Context, ContextBuilder, event, GameResult, graphics, timer};
 use graphics::{DrawParam, Font};
 use cgmath::Point2;
+use std::cell::RefCell;
+
 use crate::graphics::sprite::{PokemonSprite, PokemonSpriteType};
 use crate::utils::resolver;
+use crate::graphics::actor::{Actor, ActorDirection, ActorAction, ActorAttributes};
+use crate::scripts;
+use crate::scripts::actor::Script as ActorScript;
+
+
+// The shared state contains fields that are used among different entities for communicating with
+// each other.
+
+pub struct SharedState {
+    //todo: add relevant fields to SharedState.
+    pub test: u32
+}
+
+impl SharedState {
+    pub fn new() -> SharedState {
+        SharedState {
+            test: 10
+        }
+    }
+}
 
 pub struct GameState {
     dt: std::time::Duration,
     fps_font: Font,
     sprite: PokemonSprite,
+    actor: Actor,
+    shared_state: RefCell<SharedState>,
 }
 
 impl event::EventHandler for GameState {
@@ -25,7 +49,11 @@ impl event::EventHandler for GameState {
             graphics::clear(ctx, [0.1, 0.2, 0.3, 1.0].into());
             let text = graphics::Text::new((format!("{:.0}", timer::fps(ctx)), self.fps_font, 32.0));
             graphics::draw(ctx, &text, DrawParam::default())?;
+
             self.sprite.draw(ctx, Point2::new(100.0, 100.0))?;
+
+            self.actor.draw(ctx, &self.shared_state)?;
+
 
             graphics::present(ctx)?;
         }
@@ -38,11 +66,28 @@ impl event::EventHandler for GameState {
 impl GameState {
     pub fn new(ctx: &mut Context) -> GameResult<GameState> {
         let font = graphics::Font::new(ctx, "/fonts/DejaVuSansMono.ttf")?;
+
+        let actor_script: ActorScript = scripts::actor::player::run;
+        //todo: create actor attribute batch-maps.
+        // testing actor loader.
+
+        let attribute_batch = vec![
+            ActorAttributes {
+                direction: ActorDirection::South,
+                action: ActorAction::Stand,
+            },
+        ];
+
         let s = GameState {
             dt: std::time::Duration::from_nanos(0),
             fps_font: font,
             sprite: PokemonSprite::from(ctx, &"pikachu".to_string(), &PokemonSpriteType::NormalFront)?,
+            actor: Actor::from(ctx, &"brendan".to_string(),
+                               &attribute_batch, &actor_script)?,
+            shared_state: RefCell::new(SharedState::new()),
         };
+
+
         Ok(s)
     }
 

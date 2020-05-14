@@ -1,9 +1,7 @@
 use cgmath::Point2;
 use ggez::{Context, GameResult, graphics};
 use ggez::graphics::DrawParam;
-
 use crate::utils::resolver;
-
 
 pub struct SpriteVector {
     pub data: Vec<graphics::Image>
