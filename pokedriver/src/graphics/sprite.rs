@@ -43,6 +43,15 @@ pub struct PokemonSprite {
 }
 
 impl PokemonSprite {
+    pub fn new() -> PokemonSprite {
+        PokemonSprite {
+            sprite_vec: SpriteVector::new(),
+            frame_id: 0.0,
+            n_frames: 0,
+            event_loop_frame_id: 0
+        }
+    }
+
     pub fn from(ctx: &mut Context, pokemon: &String, sprite_type: &PokemonSpriteType) -> GameResult<PokemonSprite> {
         let sprite_vec_path = resolver::get_sprite_path(pokemon, sprite_type);
         let frames: u16 = resolver::get_anim_frames(ctx, pokemon, sprite_type)?;

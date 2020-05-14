@@ -1,18 +1,19 @@
+use std::cell::RefCell;
+use std::path::PathBuf;
+
+use cgmath::Point2;
 use conf::{Backend, ModuleConf, NumSamples, WindowMode, WindowSetup};
 use ggez::{conf, Context, ContextBuilder, event, GameResult, graphics, timer};
 use ggez::event::{KeyCode, KeyMods};
 use graphics::{DrawParam, Font};
-use cgmath::Point2;
 
-use std::path::PathBuf;
-use std::cell::RefCell;
-
+use crate::engine::controller::Controller;
+use crate::graphics::actor::{Actor, ActorAction, ActorAttributes, ActorDirection};
 use crate::graphics::sprite::{PokemonSprite, PokemonSpriteType};
-use crate::utils::resolver;
-use crate::graphics::actor::{Actor, ActorDirection, ActorAction, ActorAttributes};
 use crate::scripts::actor::loader;
 use crate::scripts::actor::loader::ScriptKey;
-use crate::engine::controller::Controller;
+use crate::utils::resolver;
+use crate::utils::resolver::get_fps;
 
 // The shared state contains fields that are used among different entities for communicating with
 // each other.
@@ -45,17 +46,12 @@ impl event::EventHandler for GameState {
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
-        let desired_fps = resolver::get_fps();
-        while timer::check_update_time(ctx, desired_fps as u32) {
+        while timer::check_update_time(ctx, get_fps() as u32) {
             graphics::clear(ctx, [0.1, 0.2, 0.3, 1.0].into());
             let text = graphics::Text::new((format!("{:.0}", timer::fps(ctx)), self.fps_font, 32.0));
             graphics::draw(ctx, &text, DrawParam::default())?;
 
-            self.sprite.draw(ctx, Point2::new(100.0, 100.0))?;
-
             self.actor.draw(ctx, &self.shared_state)?;
-
-
             graphics::present(ctx)?;
         }
 
@@ -63,8 +59,12 @@ impl event::EventHandler for GameState {
         Ok(())
     }
 
-    fn key_down_event(&mut self, _ctx: &mut Context, keycode: KeyCode, _keymod: KeyMods, _repeat: bool) {
-        self.shared_state.borrow_mut().controller.set_key_event(keycode);
+    fn key_down_event(&mut self, ctx: &mut Context, keycode: KeyCode, _keymod: KeyMods, _repeat: bool) {
+        self.shared_state.borrow_mut().controller.set_key_down_event(keycode);
+    }
+
+    fn key_up_event(&mut self, ctx: &mut Context, keycode: KeyCode, _keymod: KeyMods) {
+        self.shared_state.borrow_mut().controller.set_key_up_event(keycode);
     }
 }
 
@@ -80,13 +80,47 @@ impl GameState {
             ActorAttributes {
                 direction: ActorDirection::South,
                 action: ActorAction::Stand,
+            }, ActorAttributes {
+                direction: ActorDirection::North,
+                action: ActorAction::Stand,
+            }, ActorAttributes {
+                direction: ActorDirection::East,
+                action: ActorAction::Stand,
+            }, ActorAttributes {
+                direction: ActorDirection::West,
+                action: ActorAction::Stand,
+            }, ActorAttributes {
+                direction: ActorDirection::South,
+                action: ActorAction::Walk1,
+            }, ActorAttributes {
+                direction: ActorDirection::North,
+                action: ActorAction::Walk1,
+            }, ActorAttributes {
+                direction: ActorDirection::East,
+                action: ActorAction::Walk1,
+            }, ActorAttributes {
+                direction: ActorDirection::West,
+                action: ActorAction::Walk1,
+            },
+            ActorAttributes {
+                direction: ActorDirection::South,
+                action: ActorAction::Walk2,
+            }, ActorAttributes {
+                direction: ActorDirection::North,
+                action: ActorAction::Walk2,
+            }, ActorAttributes {
+                direction: ActorDirection::East,
+                action: ActorAction::Walk2,
+            }, ActorAttributes {
+                direction: ActorDirection::West,
+                action: ActorAction::Walk2,
             },
         ];
 
         let s = GameState {
             dt: std::time::Duration::from_nanos(0),
             fps_font: font,
-            sprite: PokemonSprite::from(ctx, &"pikachu".to_string(), &PokemonSpriteType::NormalFront)?,
+            sprite: PokemonSprite::new(),
             actor: Actor::from(ctx, &"brendan".to_string(),
                                &attribute_batch, &actor_script)?,
             shared_state: RefCell::new(SharedState::new()),

@@ -8,7 +8,7 @@ pub struct KeyEvent {
 }
 
 impl KeyEvent {
-    pub fn new() ->KeyEvent {
+    pub fn new() -> KeyEvent {
         KeyEvent {
             keycode: KeyCode::Escape,
             handled: true
@@ -26,26 +26,41 @@ impl KeyEvent {
 // The assumption is that the frame-rate is faster than the player's response time.
 
 pub struct Controller {
-    key_event: KeyEvent
+    key_down_event: KeyEvent,
+    key_up_event: KeyEvent
 }
 
 impl Controller {
     pub fn new() -> Controller {
         Controller {
-            key_event: KeyEvent::new()
+            key_down_event: KeyEvent::new(),
+            key_up_event: KeyEvent::new()
         }
     }
 
-    pub fn set_key_event(&mut self, keycode: KeyCode) {
-        self.key_event.keycode = keycode;
-        self.key_event.handled = false;
+    pub fn set_key_down_event(&mut self, keycode: KeyCode) {
+        self.key_down_event.keycode = keycode;
+        self.key_down_event.handled = false;
     }
 
-    pub fn get_key_event(&self) -> KeyEvent {
-        self.key_event.clone()
+    pub fn get_key_down_event(&self) -> KeyEvent {
+        self.key_down_event.clone()
     }
 
-    pub fn handle_key_event(&mut self) {
-        self.key_event.handled = true;
+    pub fn handle_key_down_event(&mut self) {
+        self.key_down_event.handled = true;
+    }
+
+    pub fn set_key_up_event(&mut self, keycode: KeyCode) {
+        self.key_up_event.keycode = keycode;
+        self.key_up_event.handled = false;
+    }
+
+    pub fn get_key_up_event(&self) -> KeyEvent {
+        self.key_up_event.clone()
+    }
+
+    pub fn handle_key_up_event(&mut self) {
+        self.key_up_event.handled = true;
     }
 }
