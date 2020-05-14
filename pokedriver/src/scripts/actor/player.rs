@@ -36,26 +36,11 @@ fn direct(actor: &mut Actor, direction: ActorDirection) {
 
 fn release_key(actor: &mut Actor, event: KeyEvent) -> bool {
     match event.keycode {
-        KeyCode::Up => {
+        KeyCode::Up | KeyCode::Down | KeyCode::Left | KeyCode::Right => {
             actor.attributes.action = ActorAction::Stand;
             actor.action_state = ActorAction::Stand;
             true
         }
-        KeyCode::Down => {
-            actor.attributes.action = ActorAction::Stand;
-            actor.action_state = ActorAction::Stand;
-            true
-        }
-        KeyCode::Left => {
-            actor.attributes.action = ActorAction::Stand;
-            actor.action_state = ActorAction::Stand;
-            true
-        }
-        KeyCode::Right => {
-            actor.attributes.action = ActorAction::Stand;
-            actor.action_state = ActorAction::Stand;
-            true
-        },
         _ => false
     }
 }
