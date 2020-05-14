@@ -9,8 +9,8 @@ use std::cell::RefCell;
 use crate::graphics::sprite::{PokemonSprite, PokemonSpriteType};
 use crate::utils::resolver;
 use crate::graphics::actor::{Actor, ActorDirection, ActorAction, ActorAttributes};
-use crate::scripts;
-use crate::scripts::actor::Script as ActorScript;
+use crate::scripts::actor::loader;
+use crate::scripts::actor::loader::ScriptKey;
 
 
 // The shared state contains fields that are used among different entities for communicating with
@@ -67,7 +67,7 @@ impl GameState {
     pub fn new(ctx: &mut Context) -> GameResult<GameState> {
         let font = graphics::Font::new(ctx, "/fonts/DejaVuSansMono.ttf")?;
 
-        let actor_script: ActorScript = scripts::actor::player::run;
+        let actor_script = loader::load(ScriptKey::Player);
         //todo: create actor attribute batch-maps.
         // testing actor loader.
 
