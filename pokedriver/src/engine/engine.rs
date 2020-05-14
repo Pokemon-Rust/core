@@ -14,6 +14,7 @@ use crate::scripts::actor::loader;
 use crate::scripts::actor::loader::ScriptKey;
 use crate::utils::resolver;
 use crate::utils::resolver::get_fps;
+use crate::graphics::sprite::PokemonSpriteType::NormalFront;
 
 // The shared state contains fields that are used among different entities for communicating with
 // each other.
@@ -51,7 +52,12 @@ impl event::EventHandler for GameState {
             let text = graphics::Text::new((format!("{:.0}", timer::fps(ctx)), self.fps_font, 32.0));
             graphics::draw(ctx, &text, DrawParam::default())?;
 
-            self.actor.draw(ctx, &self.shared_state)?;
+            self.sprite.draw(ctx, Point2 {
+                x: 100.0,
+                y: 100.0
+            });
+
+            //self.actor.draw(ctx, &self.shared_state)?;
             graphics::present(ctx)?;
         }
 
@@ -120,7 +126,7 @@ impl GameState {
         let s = GameState {
             dt: std::time::Duration::from_nanos(0),
             fps_font: font,
-            sprite: PokemonSprite::new(),
+            sprite: PokemonSprite::from(ctx, &"pikachu".to_string(), &NormalFront)?,
             actor: Actor::from(ctx, &"brendan".to_string(),
                                &attribute_batch, &actor_script)?,
             shared_state: RefCell::new(SharedState::new()),

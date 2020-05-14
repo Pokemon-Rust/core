@@ -2,6 +2,7 @@ use cgmath::Point2;
 use ggez::{Context, GameResult, graphics};
 use ggez::graphics::DrawParam;
 use crate::utils::resolver;
+use crate::engine::frame_sync::FrameSync;
 
 pub struct SpriteVector {
     pub data: Vec<graphics::Image>
@@ -37,18 +38,14 @@ pub enum PokemonSpriteType {
 
 pub struct PokemonSprite {
     sprite_vec: SpriteVector,
-    frame_id: f32,
-    n_frames: u16,
-    event_loop_frame_id: u16,
+    sync: FrameSync
 }
 
 impl PokemonSprite {
     pub fn new() -> PokemonSprite {
         PokemonSprite {
             sprite_vec: SpriteVector::new(),
-            frame_id: 0.0,
-            n_frames: 0,
-            event_loop_frame_id: 0
+            sync: FrameSync::new(0)
         }
     }
 
@@ -59,34 +56,15 @@ impl PokemonSprite {
 
         let sprite = PokemonSprite {
             sprite_vec: SpriteVector::from(ctx, &sprite_vec_path, &frames)?,
-            frame_id: 0.0,
-            event_loop_frame_id: 0,
-            n_frames: frames,
+            sync: FrameSync::new(frames)
         };
 
         Ok(sprite)
     }
 
     pub fn draw(&mut self, ctx: &mut Context, pt: Point2<f32>) -> GameResult<()> {
-        graphics::draw(ctx, &self.sprite_vec.data[self.frame_id.floor() as usize], DrawParam::new().dest(pt))?;
-
-        let desired_fps = resolver::get_fps();
-
-        if self.event_loop_frame_id == desired_fps - 1 {
-            self.event_loop_frame_id = 0;
-        } else {
-            self.event_loop_frame_id += 1;
-        }
-
-        if self.frame_id.ceil() as u16 >= self.n_frames - 1 {
-            self.frame_id = 0.0;
-        } else {
-            if self.n_frames < desired_fps {
-                self.frame_id = ((self.event_loop_frame_id as f32) * (self.n_frames as f32)) / (desired_fps as f32);
-            } else {
-                self.frame_id += 1.0;
-            }
-        }
+        graphics::draw(ctx, &self.sprite_vec.data[self.sync.get_frame_id()], DrawParam::new().dest(pt))?;
+        self.sync.update();
         Ok(())
     }
 }
