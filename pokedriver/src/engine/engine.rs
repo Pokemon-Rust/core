@@ -1,9 +1,10 @@
-use std::path::PathBuf;
-
 use conf::{Backend, ModuleConf, NumSamples, WindowMode, WindowSetup};
 use ggez::{conf, Context, ContextBuilder, event, GameResult, graphics, timer};
+use ggez::event::{KeyCode, KeyMods};
 use graphics::{DrawParam, Font};
 use cgmath::Point2;
+
+use std::path::PathBuf;
 use std::cell::RefCell;
 
 use crate::graphics::sprite::{PokemonSprite, PokemonSpriteType};
@@ -11,20 +12,20 @@ use crate::utils::resolver;
 use crate::graphics::actor::{Actor, ActorDirection, ActorAction, ActorAttributes};
 use crate::scripts::actor::loader;
 use crate::scripts::actor::loader::ScriptKey;
-
+use crate::engine::controller::Controller;
 
 // The shared state contains fields that are used among different entities for communicating with
 // each other.
 
 pub struct SharedState {
     //todo: add relevant fields to SharedState.
-    pub test: u32
+    pub controller: Controller
 }
 
 impl SharedState {
     pub fn new() -> SharedState {
         SharedState {
-            test: 10
+            controller: Controller::new()
         }
     }
 }
@@ -60,6 +61,10 @@ impl event::EventHandler for GameState {
 
         timer::yield_now();
         Ok(())
+    }
+
+    fn key_down_event(&mut self, _ctx: &mut Context, keycode: KeyCode, _keymod: KeyMods, _repeat: bool) {
+        self.shared_state.borrow_mut().controller.set_key_event(keycode);
     }
 }
 

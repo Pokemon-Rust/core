@@ -9,7 +9,6 @@ use std::cell::RefCell;
 
 pub fn run(actor: &mut Actor, state: &RefCell<SharedState>) -> GameResult<()> {
     println!("pokedriver: executed scripts::actor::player.rs");
-    state.borrow_mut().test += 1;
 
     Ok(())
 }

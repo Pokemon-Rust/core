@@ -39,6 +39,7 @@ pub struct ActorAttributes {
 
 pub struct Actor {
     pub attributes: ActorAttributes,
+    pub location: Point2<f32>,
     sprite_map: HashMap<ActorAttributes, graphics::Image>,
     script: actor::Script,
 }
@@ -57,6 +58,10 @@ impl Actor {
                 direction: ActorDirection::South,
                 action: ActorAction::Stand,
             },
+            location: Point2 {
+                x: 100.0,
+                y: 100.0
+            },
             sprite_map: map.clone(),
             script: *actor_script,
         };
@@ -66,18 +71,12 @@ impl Actor {
 
     pub fn draw(&mut self, ctx: &mut Context, state: &RefCell<SharedState>) -> GameResult<()> {
         (self.script)(self, state)?;
-        // test script effect.
-        println!("actor::draw(): {}", state.borrow().test);
-
 
         //todo: implement actor sprite rendering.
         let sprite = &self.sprite_map[&self.attributes];
 
-        // for testing purposes, we render the actor at (150,150)
-        graphics::draw(ctx, sprite, DrawParam::new().dest(Point2 {
-            x: 150.0,
-            y: 150.0,
-        }))?;
+
+        graphics::draw(ctx, sprite, DrawParam::new().dest(self.location))?;
 
         Ok(())
     }
