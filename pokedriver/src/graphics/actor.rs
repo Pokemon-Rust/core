@@ -1,17 +1,7 @@
-use std::cell::RefCell;
-use std::collections::HashMap;
-
-use cgmath::mint::Point2;
-use cgmath::mint::Vector2;
-use ggez::{Context, GameResult, graphics};
-use ggez::graphics::DrawParam;
+use ggez::{Context, GameResult};
 
 use crate::engine::engine::SharedState;
-use crate::scripts::actor;
-use crate::utils::resolver;
-use crate::engine::timer;
 use std::sync::{Arc, Mutex};
-use std::borrow::Borrow;
 
 #[derive(Eq, PartialEq, Hash, Clone)]
 pub enum ActorDirection {

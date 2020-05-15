@@ -1,4 +1,3 @@
-use std::cell::RefCell;
 use std::path::PathBuf;
 
 use conf::{Backend, ModuleConf, NumSamples, WindowMode, WindowSetup};
@@ -8,15 +7,13 @@ use graphics::{DrawParam, Font};
 use cgmath::Point2;
 
 use crate::engine::controller::Controller;
-use crate::graphics::actor::{ActorAction, ActorAttributes, ActorDirection, ActorBehaviour};
+use crate::graphics::actor:: ActorBehaviour;
 use crate::graphics::sprite::PokemonSprite;
 use crate::scripts::actor::loader;
 use crate::scripts::actor::loader::ScriptKey;
 use crate::utils::resolver::get_fps;
 use crate::graphics::sprite::PokemonSpriteType::NormalFront;
 use std::sync::{Arc, Mutex};
-use std::borrow::BorrowMut;
-use crate::scripts::actor::player::PlayerActor;
 
 
 // The shared state contains fields that are used among different entities for communicating with
@@ -39,7 +36,7 @@ pub struct GameState<'a> {
     dt: std::time::Duration,
     fps_font: Font,
     sprite: PokemonSprite,
-    player_actor: Box<ActorBehaviour + 'a>,
+    player_actor: Box<dyn ActorBehaviour + 'a>,
     shared_state: Arc<Mutex<SharedState>>,
 }
 
@@ -81,19 +78,18 @@ impl<'a> event::EventHandler for GameState<'a> {
 }
 
 impl<'a> GameState<'a> {
-    pub fn new(ref_mut: RefCell<Context>) -> GameResult<GameState<'a>> {
-        let mut ctx = ref_mut.borrow_mut();
-        let font = graphics::Font::new(ctx.borrow_mut(), "/fonts/DejaVuSansMono.ttf")?;
+    pub fn new(ctx: &mut Context) -> GameResult<GameState<'a>> {
+        let font = graphics::Font::new(ctx, "/fonts/DejaVuSansMono.ttf")?;
 
-        let actor_script = loader::load(ScriptKey::Player, ctx.borrow_mut());
+        let player = loader::load(ScriptKey::Player, ctx);
         //todo: create actor attribute batch-maps.
         // testing actor loader.
 
         let s = GameState {
             dt: std::time::Duration::from_nanos(0),
             fps_font: font,
-            sprite: PokemonSprite::from(ctx.borrow_mut(), &"giratina-origin".to_string(), &NormalFront)?,
-            player_actor: actor_script,
+            sprite: PokemonSprite::from(ctx, &"giratina-origin".to_string(), &NormalFront)?,
+            player_actor: player,
             shared_state: Arc::new(Mutex::new(SharedState::new())),
         };
 
@@ -118,8 +114,8 @@ impl<'a> GameState<'a> {
             .conf(conf)
             .add_resource_path(res_path);
         let (ctx, event_loop) = &mut cb.build()?;
-        let ref_ctx = RefCell::new(ctx);
-        let state = &mut GameState::new(RefCell::new(**ref_ctx.borrow()))?;
-        event::run(ref_ctx.borrow_mut().borrow_mut(), event_loop, state)
+        let state = &mut GameState::new(ctx)?;
+
+        event::run(ctx, event_loop, state)
     }
 }

@@ -2,12 +2,9 @@
 
 use crate::graphics::actor::{ActorDirection, ActorAction, ActorAttributes, ActorBehaviour};
 use crate::engine::engine::{SharedState};
-use ggez::{GameResult, Context, GameError, graphics};
-use std::cell::RefCell;
+use ggez::{GameResult, Context, graphics};
 use ggez::event::KeyCode;
 use crate::engine::controller::KeyEvent;
-use crate::engine::timer;
-use std::time::Duration;
 use std::sync::{Mutex, Arc};
 use std::borrow::BorrowMut;
 use std::collections::HashMap;
@@ -25,9 +22,8 @@ pub struct PlayerActor {
 
 impl ActorBehaviour for PlayerActor {
     fn run(&mut self, state: Arc<Mutex<SharedState>>) -> GameResult<()> {
-        let mut curr_state = state.lock()
-            .unwrap();
-        let mut mut_actor = self;
+        let mut curr_state = state.lock().unwrap();
+        let mut_actor = self;
         let key_down_event = &curr_state.controller.get_key_down_event();
         let key_up_event = &curr_state.controller.get_key_up_event();
 
