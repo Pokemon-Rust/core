@@ -58,7 +58,7 @@ pub fn run(ctx: &mut Context, actor: &mut Actor, state: &RefCell<SharedState>) -
 
         if release_key(actor, key_up_event) {
             curr_state.controller.handle_key_up_event();
-            //curr_state.controller.handle_key_down_event();
+            curr_state.controller.handle_key_down_event();
         }
     }
 
