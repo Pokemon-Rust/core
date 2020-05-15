@@ -79,7 +79,7 @@ impl Actor {
     }
 
     pub fn update(&mut self, ctx: &mut Context, state: &RefCell<SharedState>) -> GameResult<()> {
-        (self.script)(ctx, self, state)?;
+        (self.script)(self, state)?;
 
         // Notify timer_context that a frame has been updated.
         self.time_ctx_group.tick_all();
@@ -97,6 +97,7 @@ impl Actor {
             x: width / 256.0,
             y: height / 256.0,
         };
+
 
         graphics::draw(ctx, sprite, DrawParam::new().dest(self.location)
             .scale(scale_vec))?;

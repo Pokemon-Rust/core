@@ -129,7 +129,7 @@ impl GameState {
         let s = GameState {
             dt: std::time::Duration::from_nanos(0),
             fps_font: font,
-            sprite: PokemonSprite::from(ctx, &"pikachu".to_string(), &NormalFront)?,
+            sprite: PokemonSprite::from(ctx, &"giratina-origin".to_string(), &NormalFront)?,
             actor: Actor::from(ctx, &"brendan".to_string(),
                                &attribute_batch, &actor_script)?,
             shared_state: RefCell::new(SharedState::new()),
