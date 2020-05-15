@@ -59,12 +59,23 @@ pub fn is_valid_walk(keycode: KeyCode) -> bool {
 
 
 pub fn run(actor: &mut Actor, state: &RefCell<SharedState>) -> GameResult<()> {
+    let mut curr_state = state.borrow_mut();
+    let key_down_event = &curr_state.controller.get_key_down_event();
+    let key_up_event = &curr_state.controller.get_key_up_event();
+
     while timer::check_update_time(&mut actor.time_ctx_group.get(0), 6) {
-        let mut curr_state = state.borrow_mut();
-        let key_down_event = curr_state.controller.get_key_down_event();
+        if !key_up_event.handled {
+            println!("key_up event");
+
+            if key_down_event.handled {
+                if release_key(actor, key_up_event.clone()) {
+                    curr_state.controller.handle_key_up_event();
+                }
+            }
+        }
+
         if !key_down_event.handled {
             println!("key_down event");
-
 
             let handled = match key_down_event.keycode {
                 KeyCode::Up => direct(actor, ActorDirection::North),
@@ -79,16 +90,8 @@ pub fn run(actor: &mut Actor, state: &RefCell<SharedState>) -> GameResult<()> {
             }
         }
 
-        let key_up_event = curr_state.controller.get_key_up_event();
-        if !key_up_event.handled {
-            println!("key_up event");
 
-            if key_down_event.handled {
-                if release_key(actor, key_up_event) {
-                    curr_state.controller.handle_key_up_event();
-                }
-            }
-        }
+
     }
 
 
