@@ -9,6 +9,7 @@ use ggez::graphics::DrawParam;
 use crate::engine::engine::SharedState;
 use crate::scripts::actor;
 use crate::utils::resolver;
+use crate::engine::timer;
 
 #[derive(Eq, PartialEq, Hash, Clone)]
 pub enum ActorDirection {
@@ -36,14 +37,16 @@ pub struct ActorAttributes {
 // The Actor struct encapsulates all the sprites corresponding to the actor.
 // The script uses the SharedState to operate properly,
 // i.e. Bound actor to TileMaps, etc. Finally, the script updates the actor attributes using
-// &mut Actor. The actor::draw() function executes the script at first, then it renders,
-// the new sprite corresponding to the updated attributes. Any changes to the storyline can be made
+// &mut Actor. The actor::update() function executes the script at first, then the actor::draw() fn
+// renders the sprite corresponding to the ActorAttribute specified by the script,
+// ny changes to the storyline can be made
 // from the script using a mutable reference to the SharedState.
 
 pub struct Actor {
     pub attributes: ActorAttributes,
     pub action_state: ActorAction,
     pub location: Point2<f32>,
+    pub timer_context: timer::TimeContext,
     sprite_map: HashMap<ActorAttributes, graphics::Image>,
     script: actor::Script,
 }
@@ -64,29 +67,39 @@ impl Actor {
             },
             location: Point2 {
                 x: 100.0,
-                y: 100.0
+                y: 100.0,
             },
             sprite_map: map.clone(),
             script: *actor_script,
-            action_state: ActorAction::Stand
+            action_state: ActorAction::Stand,
+            timer_context: timer::TimeContext::new(),
         };
 
         Ok(actor)
     }
 
-    pub fn draw(&mut self, ctx: &mut Context, state: &RefCell<SharedState>) -> GameResult<()> {
-        (self.script)(self, state)?;
+    pub fn update(&mut self, ctx: &mut Context, state: &RefCell<SharedState>) -> GameResult<()> {
+        (self.script)(ctx, self, state)?;
+
+        // Notify timer_context that a frame has been updated.
+        self.timer_context.tick();
+
+        Ok(())
+    }
+
+    pub fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
+
 
         //todo: implement actor sprite rendering.
         let sprite = &self.sprite_map[&self.attributes];
         let (width, height) = graphics::drawable_size(ctx);
-        let scale_vec = Vector2{
+        let scale_vec = Vector2 {
             x: width / 256.0,
-            y: height / 256.0
+            y: height / 256.0,
         };
 
         graphics::draw(ctx, sprite, DrawParam::new().dest(self.location)
-                                                .scale(scale_vec))?;
+            .scale(scale_vec))?;
 
         Ok(())
     }

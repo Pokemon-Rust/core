@@ -2,15 +2,25 @@
 
 use crate::graphics::actor::{Actor, ActorDirection, ActorAction};
 use crate::engine::engine::{SharedState};
-use ggez::GameResult;
+use ggez::{ GameResult, Context};
 use std::cell::RefCell;
 use ggez::event::KeyCode;
 use crate::engine::controller::KeyEvent;
+use crate::engine::timer;
 
 //todo: Implement navigation
 
-fn direct(actor: &mut Actor, direction: ActorDirection) {
+fn direct(actor: &mut Actor, direction: ActorDirection) -> bool {
     if actor.attributes.direction == direction {
+
+        //frame skipping while walking in the same direction.
+        // actor.sync.update();
+        // if actor.sync.get_frame() == 0.0{
+        //     return false;
+        // }
+
+
+
         match actor.attributes.action {
             ActorAction::Stand => {
                 if actor.action_state == ActorAction::Walk1 {
@@ -32,6 +42,8 @@ fn direct(actor: &mut Actor, direction: ActorDirection) {
         actor.attributes.action = ActorAction::Stand;
         actor.attributes.direction = direction;
     }
+
+    true
 }
 
 fn release_key(actor: &mut Actor, event: KeyEvent) -> bool {
@@ -46,32 +58,38 @@ fn release_key(actor: &mut Actor, event: KeyEvent) -> bool {
 }
 
 
-pub fn run(actor: &mut Actor, state: &RefCell<SharedState>) -> GameResult<()> {
-    let mut curr_state = state.borrow_mut();
+pub fn run(ctx: &mut Context, actor: &mut Actor, state: &RefCell<SharedState>) -> GameResult<()> {
+    while timer::check_update_time(&mut actor.timer_context, 6) {
+        let mut curr_state = state.borrow_mut();
+        let key_up_event = curr_state.controller.get_key_up_event();
+        if !key_up_event.handled {
+            println!("key_up event");
 
-    let key_up_event = curr_state.controller.get_key_up_event();
-    if !key_up_event.handled {
-        if release_key(actor, key_up_event) {
-            curr_state.controller.handle_key_up_event();
-            return Ok(());
+            if release_key(actor, key_up_event) {
+                actor.attributes.action = ActorAction::Stand;
+                curr_state.controller.handle_key_up_event();
+                curr_state.controller.handle_key_down_event();
+            }
+        }
+
+        let key_down_event = curr_state.controller.get_key_down_event();
+        if !key_down_event.handled {
+            println!("key_down event");
+
+            let handled = match key_down_event.keycode {
+                KeyCode::Up => direct(actor, ActorDirection::North),
+                KeyCode::Down => direct(actor, ActorDirection::South),
+                KeyCode::Left => direct(actor, ActorDirection::West),
+                KeyCode::Right => direct(actor, ActorDirection::East),
+                _ => false
+            };
+
+            if handled {
+                curr_state.controller.handle_key_down_event();
+            }
         }
     }
 
-    let key_down_event = curr_state.controller.get_key_down_event();
-    if !key_down_event.handled {
-        match key_down_event.keycode {
-            KeyCode::Up => direct(actor, ActorDirection::North),
-            KeyCode::Down => direct(actor, ActorDirection::South),
-            KeyCode::Left => direct(actor, ActorDirection::West),
-            KeyCode::Right => direct(actor, ActorDirection::East),
-            _ => {}
-        }
-
-        curr_state.controller.handle_key_down_event();
-    } else {
-        actor.attributes.action = ActorAction::Stand;
-        actor.action_state = ActorAction::Stand;
-    }
 
     Ok(())
 }

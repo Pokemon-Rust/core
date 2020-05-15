@@ -1,20 +1,20 @@
 use std::cell::RefCell;
 use std::path::PathBuf;
 
-use cgmath::Point2;
 use conf::{Backend, ModuleConf, NumSamples, WindowMode, WindowSetup};
 use ggez::{conf, Context, ContextBuilder, event, GameResult, graphics, timer};
 use ggez::event::{KeyCode, KeyMods};
 use graphics::{DrawParam, Font};
+use cgmath::Point2;
 
 use crate::engine::controller::Controller;
 use crate::graphics::actor::{Actor, ActorAction, ActorAttributes, ActorDirection};
-use crate::graphics::sprite::{PokemonSprite, PokemonSpriteType};
+use crate::graphics::sprite::PokemonSprite;
 use crate::scripts::actor::loader;
 use crate::scripts::actor::loader::ScriptKey;
-use crate::utils::resolver;
 use crate::utils::resolver::get_fps;
 use crate::graphics::sprite::PokemonSpriteType::NormalFront;
+use std::time::Duration;
 
 // The shared state contains fields that are used among different entities for communicating with
 // each other.
@@ -43,6 +43,9 @@ pub struct GameState {
 impl event::EventHandler for GameState {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         self.dt = timer::delta(ctx);
+
+        self.actor.update(ctx, &self.shared_state)?;
+
         Ok(())
     }
 
@@ -52,12 +55,12 @@ impl event::EventHandler for GameState {
             let text = graphics::Text::new((format!("{:.0}", timer::fps(ctx)), self.fps_font, 32.0));
             graphics::draw(ctx, &text, DrawParam::default())?;
 
+            self.actor.draw(ctx)?;
             self.sprite.draw(ctx, Point2 {
-                x: 100.0,
-                y: 100.0
-            });
+                x: 200.0,
+                y: 200.0
+            })?;
 
-            //self.actor.draw(ctx, &self.shared_state)?;
             graphics::present(ctx)?;
         }
 

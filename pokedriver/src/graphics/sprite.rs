@@ -1,8 +1,8 @@
 use cgmath::Point2;
-use ggez::{Context, GameResult, graphics};
+use ggez::{timer, Context, GameResult, graphics};
 use ggez::graphics::DrawParam;
 use crate::utils::resolver;
-use crate::engine::frame_sync::FrameSync;
+use crate::graphics::sprite_sync::SpriteSync;
 
 pub struct SpriteVector {
     pub data: Vec<graphics::Image>
@@ -38,14 +38,14 @@ pub enum PokemonSpriteType {
 
 pub struct PokemonSprite {
     sprite_vec: SpriteVector,
-    sync: FrameSync
+    sync: SpriteSync,
 }
 
 impl PokemonSprite {
     pub fn new() -> PokemonSprite {
         PokemonSprite {
             sprite_vec: SpriteVector::new(),
-            sync: FrameSync::new(0)
+            sync: SpriteSync::new(),
         }
     }
 
@@ -56,15 +56,16 @@ impl PokemonSprite {
 
         let sprite = PokemonSprite {
             sprite_vec: SpriteVector::from(ctx, &sprite_vec_path, &frames)?,
-            sync: FrameSync::new(frames)
+            sync: SpriteSync::new().set_frames(frames),
         };
 
         Ok(sprite)
     }
 
     pub fn draw(&mut self, ctx: &mut Context, pt: Point2<f32>) -> GameResult<()> {
-        graphics::draw(ctx, &self.sprite_vec.data[self.sync.get_frame_id()], DrawParam::new().dest(pt))?;
+        graphics::draw(ctx, &self.sprite_vec.data[self.sync.get_frame()], DrawParam::new().dest(pt))?;
         self.sync.update();
+
         Ok(())
     }
 }

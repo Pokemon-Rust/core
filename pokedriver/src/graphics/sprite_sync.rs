@@ -1,17 +1,17 @@
 use crate::utils::resolver;
 
-pub struct FrameSync {
+pub struct SpriteSync {
     event_loop_frame_id: u16,
     frame_id: f32,
-    pub n_frames: u16
+    n_frames: u16,
 }
 
-impl FrameSync {
-    pub fn new(frames: u16) -> FrameSync {
-        FrameSync {
+impl SpriteSync {
+    pub fn new() -> SpriteSync {
+        SpriteSync {
             event_loop_frame_id: 0,
             frame_id: 0.0,
-            n_frames: frames
+            n_frames: 0,
         }
     }
 
@@ -33,10 +33,20 @@ impl FrameSync {
                 self.frame_id += 1.0;
             }
         }
-
     }
 
-    pub fn get_frame_id(&self) -> usize {
+    pub fn reset(&mut self) {
+        self.frame_id = 0.0;
+        self.event_loop_frame_id = 0;
+    }
+
+    pub fn set_frames(mut self, frames: u16) -> Self {
+        self.n_frames = frames;
+        self
+    }
+
+    pub fn get_frame(&self) -> usize {
         self.frame_id.floor() as usize
     }
+
 }

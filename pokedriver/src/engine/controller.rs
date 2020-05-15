@@ -1,5 +1,4 @@
 use ggez::event::KeyCode;
-use ggez::GameResult;
 
 #[derive(Clone)]
 pub struct KeyEvent {
