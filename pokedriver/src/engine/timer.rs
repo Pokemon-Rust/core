@@ -88,7 +88,6 @@ pub struct TimeContext {
 const TIME_LOG_FRAMES: usize = 200;
 
 impl TimeContext {
-
     pub fn new() -> TimeContext {
         let initial_dt = time::Duration::from_millis(16);
         TimeContext {
@@ -194,4 +193,37 @@ pub fn yield_now() {
 
 pub fn ticks(ctx: &TimeContext) -> usize {
     ctx.frame_count
+}
+
+pub struct TimeContextGroup {
+    tc_vec: Vec<TimeContext>,
+
+}
+
+impl TimeContextGroup {
+    pub fn new() -> TimeContextGroup {
+        TimeContextGroup {
+            tc_vec: vec![]
+        }
+    }
+
+    pub fn tick_all(&mut self) {
+        for index in 0..self.tc_vec.len() {
+            self.tc_vec[index].tick()
+        }
+    }
+
+    pub fn get(&mut self, index: usize) -> &mut TimeContext {
+        let diff = (index + 1) as i32 - (self.tc_vec.len() as i32);
+
+        if diff > 0 {
+            let mut i = 0;
+            while i < diff {
+                self.tc_vec.push(TimeContext::new());
+                i += 1;
+            }
+        }
+
+        &mut self.tc_vec[index]
+    }
 }

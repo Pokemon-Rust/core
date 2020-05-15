@@ -46,7 +46,7 @@ pub struct Actor {
     pub attributes: ActorAttributes,
     pub action_state: ActorAction,
     pub location: Point2<f32>,
-    pub timer_context: timer::TimeContext,
+    pub time_ctx_group: timer::TimeContextGroup,
     sprite_map: HashMap<ActorAttributes, graphics::Image>,
     script: actor::Script,
 }
@@ -72,7 +72,7 @@ impl Actor {
             sprite_map: map.clone(),
             script: *actor_script,
             action_state: ActorAction::Stand,
-            timer_context: timer::TimeContext::new(),
+            time_ctx_group: timer::TimeContextGroup::new(),
         };
 
         Ok(actor)
@@ -82,7 +82,7 @@ impl Actor {
         (self.script)(ctx, self, state)?;
 
         // Notify timer_context that a frame has been updated.
-        self.timer_context.tick();
+        self.time_ctx_group.tick_all();
 
         Ok(())
     }

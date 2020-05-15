@@ -35,11 +35,6 @@ impl SpriteSync {
         }
     }
 
-    pub fn reset(&mut self) {
-        self.frame_id = 0.0;
-        self.event_loop_frame_id = 0;
-    }
-
     pub fn set_frames(mut self, frames: u16) -> Self {
         self.n_frames = frames;
         self

@@ -1,5 +1,5 @@
 use cgmath::Point2;
-use ggez::{timer, Context, GameResult, graphics};
+use ggez::{Context, GameResult, graphics};
 use ggez::graphics::DrawParam;
 use crate::utils::resolver;
 use crate::graphics::sprite_sync::SpriteSync;

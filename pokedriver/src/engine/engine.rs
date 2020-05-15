@@ -14,7 +14,7 @@ use crate::scripts::actor::loader;
 use crate::scripts::actor::loader::ScriptKey;
 use crate::utils::resolver::get_fps;
 use crate::graphics::sprite::PokemonSpriteType::NormalFront;
-use std::time::Duration;
+
 
 // The shared state contains fields that are used among different entities for communicating with
 // each other.
