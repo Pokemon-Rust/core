@@ -63,7 +63,7 @@ pub fn run(actor: &mut Actor, state: &RefCell<SharedState>) -> GameResult<()> {
     let key_down_event = &curr_state.controller.get_key_down_event();
     let key_up_event = &curr_state.controller.get_key_up_event();
 
-    while timer::check_update_time(&mut actor.time_ctx_group.get(0), 6) {
+    while timer::check_update_time(&mut actor.time_ctx_group.get(0), 12) {
         if !key_up_event.handled {
             println!("key_up event");
 
@@ -73,7 +73,9 @@ pub fn run(actor: &mut Actor, state: &RefCell<SharedState>) -> GameResult<()> {
                 }
             }
         }
+    }
 
+    while timer::check_update_time(&mut actor.time_ctx_group.get(1), 6) {
         if !key_down_event.handled {
             println!("key_down event");
 
@@ -89,9 +91,6 @@ pub fn run(actor: &mut Actor, state: &RefCell<SharedState>) -> GameResult<()> {
                 curr_state.controller.handle_key_down_event();
             }
         }
-
-
-
     }
 
 
