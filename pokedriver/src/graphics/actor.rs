@@ -10,6 +10,8 @@ use crate::engine::engine::SharedState;
 use crate::scripts::actor;
 use crate::utils::resolver;
 use crate::engine::timer;
+use std::sync::{Arc, Mutex};
+use std::borrow::Borrow;
 
 #[derive(Eq, PartialEq, Hash, Clone)]
 pub enum ActorDirection {
@@ -42,68 +44,10 @@ pub struct ActorAttributes {
 // ny changes to the storyline can be made
 // from the script using a mutable reference to the SharedState.
 
-pub struct Actor {
-    pub attributes: ActorAttributes,
-    pub action_state: ActorAction,
-    pub location: Point2<f32>,
-    pub time_ctx_group: timer::TimeContextGroup,
-    sprite_map: HashMap<ActorAttributes, graphics::Image>,
-    script: actor::Script,
-}
-
-impl Actor {
-    pub fn from(ctx: &mut Context, actor: &String, attribute_batch: &Vec<ActorAttributes>, actor_script: &actor::Script) -> GameResult<Actor> {
-        let mut map = HashMap::new();
-
-        for attribute in attribute_batch {
-            let actor_path = resolver::get_actor_path(ctx, actor, attribute)?;
-            map.insert(attribute.clone(), graphics::Image::new(ctx, actor_path)?);
-        }
-
-        let actor = Actor {
-            attributes: ActorAttributes {
-                direction: ActorDirection::South,
-                action: ActorAction::Stand,
-            },
-            location: Point2 {
-                x: 100.0,
-                y: 100.0,
-            },
-            sprite_map: map.clone(),
-            script: *actor_script,
-            action_state: ActorAction::Stand,
-            time_ctx_group: timer::TimeContextGroup::new(),
-        };
-
-        Ok(actor)
-    }
-
-    pub fn update(&mut self, ctx: &mut Context, state: &RefCell<SharedState>) -> GameResult<()> {
-        (self.script)(self, state)?;
-
-        // Notify timer_context that a frame has been updated.
-        self.time_ctx_group.tick_all();
-
-        Ok(())
-    }
-
-    pub fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
-
-
-        //todo: implement actor sprite rendering.
-        let sprite = &self.sprite_map[&self.attributes];
-        let (width, height) = graphics::drawable_size(ctx);
-        let scale_vec = Vector2 {
-            x: width / 256.0,
-            y: height / 256.0,
-        };
-
-
-        graphics::draw(ctx, sprite, DrawParam::new().dest(self.location)
-            .scale(scale_vec))?;
-
-        Ok(())
-    }
+pub trait ActorBehaviour {
+    fn run(&mut self, shared_state: Arc<Mutex<SharedState>>) -> GameResult<()>;
+    // fn from(ctx: &mut Context, actor: &String, attribute_batch: &Vec<ActorAttributes>) -> GameResult<Box<dyn ActorBehaviour>>;
+    fn draw(&mut self, ctx: &mut Context) -> GameResult<()>;
 }
 
 
