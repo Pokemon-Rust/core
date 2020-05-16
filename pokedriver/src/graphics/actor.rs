@@ -9,8 +9,6 @@ use ggez::graphics::DrawParam;
 use crate::engine::engine::SharedState;
 use crate::scripts::actor;
 use crate::utils::resolver;
-use crate::engine::timer;
-use std::borrow::BorrowMut;
 
 #[derive(Eq, PartialEq, Hash, Clone)]
 pub enum ActorDirection {
@@ -76,7 +74,7 @@ impl Actor {
         Ok(actor)
     }
 
-    pub fn update(&mut self, ctx: &mut Context, state: &RefCell<SharedState>) -> GameResult<()> {
+    pub fn update(&mut self, _ctx: &mut Context, state: &RefCell<SharedState>) -> GameResult<()> {
         self.behaviour.run(&mut self.attributes, state)?;
 
         Ok(())

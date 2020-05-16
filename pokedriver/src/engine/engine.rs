@@ -10,7 +10,6 @@ use cgmath::Point2;
 use crate::engine::controller::Controller;
 use crate::graphics::actor::{Actor, ActorAction, ActorAttributes, ActorDirection};
 use crate::graphics::sprite::PokemonSprite;
-use crate::scripts::actor::loader;
 use crate::scripts::actor::loader::ActorBehaviourType;
 use crate::utils::resolver::get_fps;
 use crate::graphics::sprite::PokemonSpriteType::NormalFront;
@@ -68,11 +67,11 @@ impl event::EventHandler for GameState {
         Ok(())
     }
 
-    fn key_down_event(&mut self, ctx: &mut Context, keycode: KeyCode, _keymod: KeyMods, _repeat: bool) {
+    fn key_down_event(&mut self, _ctx: &mut Context, keycode: KeyCode, _keymod: KeyMods, _repeat: bool) {
         self.shared_state.borrow_mut().controller.set_key_down_event(keycode);
     }
 
-    fn key_up_event(&mut self, ctx: &mut Context, keycode: KeyCode, _keymod: KeyMods) {
+    fn key_up_event(&mut self, _ctx: &mut Context, keycode: KeyCode, _keymod: KeyMods) {
         self.shared_state.borrow_mut().controller.set_key_up_event(keycode);
     }
 }
@@ -145,7 +144,7 @@ impl GameState {
             window_setup: WindowSetup {
                 title: "Pokemon Rust".to_string(),
                 samples: NumSamples::Zero,
-                vsync: true,
+                vsync: false,
                 icon: "".to_string(),
                 srgb: true,
             },

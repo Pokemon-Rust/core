@@ -1,13 +1,12 @@
 // Actor-script for Player.
 
-use crate::graphics::actor::{Actor, ActorDirection, ActorAction, ActorAttributes};
+use crate::graphics::actor::{ActorDirection, ActorAction, ActorAttributes};
 use crate::engine::engine::{SharedState};
-use ggez::{GameResult, Context};
+use ggez::GameResult;
 use std::cell::RefCell;
 use ggez::event::KeyCode;
 use crate::engine::controller::KeyEvent;
 use crate::engine::timer;
-use std::time::Duration;
 use crate::scripts::actor::ActorBehaviour;
 use crate::engine::timer::TimeContextGroup;
 
@@ -22,7 +21,7 @@ impl PlayerBehaviour {
     pub fn new() -> PlayerBehaviour {
         PlayerBehaviour {
             action_state: ActorAction::Stand,
-            time_ctx_group: TimeContextGroup::new()
+            time_ctx_group: TimeContextGroup::new(),
         }
     }
 
@@ -71,7 +70,6 @@ impl PlayerBehaviour {
             _ => false
         }
     }
-
 }
 
 impl ActorBehaviour for PlayerBehaviour {
@@ -80,22 +78,16 @@ impl ActorBehaviour for PlayerBehaviour {
         let key_down_event = &curr_state.controller.get_key_down_event();
         let key_up_event = &curr_state.controller.get_key_up_event();
 
-        while timer::check_update_time(&mut self.time_ctx_group.get(0), 12) {
+        while timer::check_update_time(&mut self.time_ctx_group.get(0), 6) {
             if !key_up_event.handled {
-                println!("key_up event");
-
-                if key_down_event.handled {
+                if key_down_event.handled || !self.is_valid_walk(key_down_event.keycode) {
                     if self.release_key(attr, key_up_event.clone()) {
                         curr_state.controller.handle_key_up_event();
                     }
                 }
             }
-        }
 
-        while timer::check_update_time(&mut self.time_ctx_group.get(1), 6) {
             if !key_down_event.handled {
-                println!("key_down event");
-
                 let handled = match key_down_event.keycode {
                     KeyCode::Up => self.direct(attr, ActorDirection::North),
                     KeyCode::Down => self.direct(attr, ActorDirection::South),
