@@ -1,4 +1,4 @@
-use crate::graphics::actor::Actor;
+use crate::graphics::actor::ActorAttributes;
 use crate::engine::engine::{SharedState};
 use ggez::{GameResult, Context};
 use std::cell::{RefCell};
@@ -6,5 +6,6 @@ use std::cell::{RefCell};
 pub mod player;
 pub mod loader;
 
-// define types
-pub type Script = fn( &mut Actor, &RefCell<SharedState>) -> GameResult;
+pub trait ActorBehaviour {
+    fn run(&mut self, attr: &mut ActorAttributes, state: &RefCell<SharedState>) -> GameResult<()>;
+}

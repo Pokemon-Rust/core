@@ -1,12 +1,12 @@
-use crate::scripts::actor::Script;
+use crate::scripts::actor::ActorBehaviour;
 use crate::scripts::actor;
 
-pub enum ScriptKey {
+pub enum ActorBehaviourType {
     Player
 }
 
-pub fn load(key: ScriptKey) -> Script {
+pub fn load(key: &ActorBehaviourType) -> Box<dyn ActorBehaviour> {
     match key {
-        ScriptKey::Player => actor::player::run
+        ActorBehaviourType::Player => Box::new(actor::player::PlayerBehaviour::new())
     }
 }

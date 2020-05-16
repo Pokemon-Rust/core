@@ -10,6 +10,7 @@ use crate::engine::engine::SharedState;
 use crate::scripts::actor;
 use crate::utils::resolver;
 use crate::engine::timer;
+use std::borrow::BorrowMut;
 
 #[derive(Eq, PartialEq, Hash, Clone)]
 pub enum ActorDirection {
@@ -44,15 +45,14 @@ pub struct ActorAttributes {
 
 pub struct Actor {
     pub attributes: ActorAttributes,
-    pub action_state: ActorAction,
     pub location: Point2<f32>,
-    pub time_ctx_group: timer::TimeContextGroup,
+
     sprite_map: HashMap<ActorAttributes, graphics::Image>,
-    script: actor::Script,
+    behaviour: Box<dyn actor::ActorBehaviour>,
 }
 
 impl Actor {
-    pub fn from(ctx: &mut Context, actor: &String, attribute_batch: &Vec<ActorAttributes>, actor_script: &actor::Script) -> GameResult<Actor> {
+    pub fn from(ctx: &mut Context, actor: &String, attribute_batch: &Vec<ActorAttributes>, actor_behaviour_type: &actor::loader::ActorBehaviourType) -> GameResult<Actor> {
         let mut map = HashMap::new();
 
         for attribute in attribute_batch {
@@ -70,26 +70,19 @@ impl Actor {
                 y: 100.0,
             },
             sprite_map: map.clone(),
-            script: *actor_script,
-            action_state: ActorAction::Stand,
-            time_ctx_group: timer::TimeContextGroup::new(),
+            behaviour: actor::loader::load(actor_behaviour_type),
         };
 
         Ok(actor)
     }
 
     pub fn update(&mut self, ctx: &mut Context, state: &RefCell<SharedState>) -> GameResult<()> {
-        (self.script)(self, state)?;
-
-        // Notify timer_context that a frame has been updated.
-        self.time_ctx_group.tick_all();
+        self.behaviour.run(&mut self.attributes, state)?;
 
         Ok(())
     }
 
     pub fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
-
-
         //todo: implement actor sprite rendering.
         let sprite = &self.sprite_map[&self.attributes];
         let (width, height) = graphics::drawable_size(ctx);

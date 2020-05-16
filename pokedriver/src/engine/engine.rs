@@ -11,7 +11,7 @@ use crate::engine::controller::Controller;
 use crate::graphics::actor::{Actor, ActorAction, ActorAttributes, ActorDirection};
 use crate::graphics::sprite::PokemonSprite;
 use crate::scripts::actor::loader;
-use crate::scripts::actor::loader::ScriptKey;
+use crate::scripts::actor::loader::ActorBehaviourType;
 use crate::utils::resolver::get_fps;
 use crate::graphics::sprite::PokemonSpriteType::NormalFront;
 
@@ -81,7 +81,6 @@ impl GameState {
     pub fn new(ctx: &mut Context) -> GameResult<GameState> {
         let font = graphics::Font::new(ctx, "/fonts/DejaVuSansMono.ttf")?;
 
-        let actor_script = loader::load(ScriptKey::Player);
         //todo: create actor attribute batch-maps.
         // testing actor loader.
 
@@ -131,7 +130,7 @@ impl GameState {
             fps_font: font,
             sprite: PokemonSprite::from(ctx, &"giratina-origin".to_string(), &NormalFront)?,
             actor: Actor::from(ctx, &"brendan".to_string(),
-                               &attribute_batch, &actor_script)?,
+                               &attribute_batch, &ActorBehaviourType::Player)?,
             shared_state: RefCell::new(SharedState::new()),
         };
 
