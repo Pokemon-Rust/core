@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 
-use cgmath::mint::Point2;
+use cgmath::Point2;
 use cgmath::mint::Vector2;
 use ggez::{Context, GameResult, graphics};
 use ggez::graphics::DrawParam;
@@ -9,6 +9,8 @@ use ggez::graphics::DrawParam;
 use crate::engine::engine::SharedState;
 use crate::scripts::actor;
 use crate::utils::resolver;
+use crate::graphics::Renderable;
+use crate::graphics::overworld::ViewPort;
 
 #[derive(Eq, PartialEq, Hash, Clone)]
 pub enum ActorDirection {
@@ -73,15 +75,15 @@ impl Actor {
 
         Ok(actor)
     }
+}
 
-    pub fn update(&mut self, _ctx: &mut Context, state: &RefCell<SharedState>) -> GameResult<()> {
+impl Renderable for Actor {
+    fn update(&mut self, state: &RefCell<SharedState>) -> GameResult<()> {
         self.behaviour.run(&mut self.attributes, state)?;
-
         Ok(())
     }
 
-    pub fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
-        //todo: implement actor sprite rendering.
+    fn draw(&mut self, ctx: &mut Context, view_port: &ViewPort) -> GameResult<()> {
         let sprite = &self.sprite_map[&self.attributes];
         let (width, height) = graphics::drawable_size(ctx);
         let scale_vec = Vector2 {
@@ -90,10 +92,14 @@ impl Actor {
         };
 
 
-        graphics::draw(ctx, sprite, DrawParam::new().dest(self.location)
+        graphics::draw(ctx, sprite, DrawParam::new().dest(view_port.translate(self.location))
             .scale(scale_vec))?;
 
         Ok(())
+    }
+
+    fn location(&self) -> Point2<f32> {
+        self.location
     }
 }
 

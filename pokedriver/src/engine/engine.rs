@@ -13,6 +13,8 @@ use crate::graphics::sprite::PokemonSprite;
 use crate::scripts::actor::loader::ActorBehaviourType;
 use crate::utils::resolver::get_fps;
 use crate::graphics::sprite::PokemonSpriteType::NormalFront;
+use crate::graphics::Renderable;
+use crate::graphics::overworld::{OverWorld, ViewPort};
 
 
 // The shared state contains fields that are used among different entities for communicating with
@@ -20,13 +22,15 @@ use crate::graphics::sprite::PokemonSpriteType::NormalFront;
 
 pub struct SharedState {
     //todo: add relevant fields to SharedState.
-    pub controller: Controller
+    pub controller: Controller,
+    pub view_port: ViewPort
 }
 
 impl SharedState {
     pub fn new() -> SharedState {
         SharedState {
-            controller: Controller::new()
+            controller: Controller::new(),
+            view_port: ViewPort::new()
         }
     }
 }
@@ -34,8 +38,7 @@ impl SharedState {
 pub struct GameState {
     dt: std::time::Duration,
     fps_font: Font,
-    sprite: PokemonSprite,
-    actor: Actor,
+    world: Box<dyn Renderable>,
     shared_state: RefCell<SharedState>,
 }
 
@@ -43,7 +46,7 @@ impl event::EventHandler for GameState {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         self.dt = timer::delta(ctx);
 
-        self.actor.update(ctx, &self.shared_state)?;
+        self.world.update(&self.shared_state)?;
 
         Ok(())
     }
@@ -51,14 +54,11 @@ impl event::EventHandler for GameState {
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
         while timer::check_update_time(ctx, get_fps() as u32) {
             graphics::clear(ctx, [0.1, 0.2, 0.3, 1.0].into());
-            let text = graphics::Text::new((format!("{:.0}", timer::fps(ctx)), self.fps_font, 32.0));
+            let text = graphics::Text::new((format!("FPS: {:.0}", timer::fps(ctx)), self.fps_font, 32.0));
             graphics::draw(ctx, &text, DrawParam::default())?;
 
-            self.actor.draw(ctx)?;
-            self.sprite.draw(ctx, Point2 {
-                x: 200.0,
-                y: 200.0
-            })?;
+            // draw overworld at (0,0)
+            self.world.draw(ctx, &self.shared_state.borrow().view_port)?;
 
             graphics::present(ctx)?;
         }
@@ -124,15 +124,27 @@ impl GameState {
             },
         ];
 
+        // Create a vanilla overworld
+
+        let mut world = OverWorld::new();
+
+        world.add(Box::new(Actor::from(ctx, &"brendan".to_string(),
+                                       &attribute_batch, &ActorBehaviourType::Player)?), 0);
+
+
         let s = GameState {
             dt: std::time::Duration::from_nanos(0),
             fps_font: font,
-            sprite: PokemonSprite::from(ctx, &"giratina-origin".to_string(), &NormalFront)?,
-            actor: Actor::from(ctx, &"brendan".to_string(),
-                               &attribute_batch, &ActorBehaviourType::Player)?,
+            world: Box::new(world),
             shared_state: RefCell::new(SharedState::new()),
         };
 
+        // create a static viewport
+        let view_port = ViewPort::new().init(ctx)
+            .origin(Point2 {x: 0.0, y: 0.0})
+            .padding(2.0);
+
+        s.shared_state.borrow_mut().view_port = view_port;
 
         Ok(s)
     }
