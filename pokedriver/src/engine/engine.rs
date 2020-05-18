@@ -8,11 +8,10 @@ use graphics::{DrawParam, Font};
 use cgmath::Point2;
 
 use crate::engine::controller::Controller;
-use crate::graphics::actor::{Actor, ActorAction, ActorAttributes, ActorDirection};
+use crate::graphics::actor::Actor;
 use crate::graphics::sprite::PokemonSprite;
 use crate::scripts::actor::loader::ActorBehaviourType;
 use crate::utils::resolver::get_fps;
-use crate::graphics::sprite::PokemonSpriteType::NormalFront;
 use crate::graphics::Renderable;
 use crate::graphics::overworld::{OverWorld, ViewPort};
 
@@ -23,14 +22,14 @@ use crate::graphics::overworld::{OverWorld, ViewPort};
 pub struct SharedState {
     //todo: add relevant fields to SharedState.
     pub controller: Controller,
-    pub view_port: ViewPort
+    pub view_port: ViewPort,
 }
 
 impl SharedState {
     pub fn new() -> SharedState {
         SharedState {
             controller: Controller::new(),
-            view_port: ViewPort::new()
+            view_port: ViewPort::new(),
         }
     }
 }
@@ -45,7 +44,6 @@ pub struct GameState {
 impl event::EventHandler for GameState {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         self.dt = timer::delta(ctx);
-
         self.world.update(&self.shared_state)?;
 
         Ok(())
@@ -83,53 +81,13 @@ impl GameState {
         //todo: create actor attribute batch-maps.
         // testing actor loader.
 
-        let attribute_batch = vec![
-            ActorAttributes {
-                direction: ActorDirection::South,
-                action: ActorAction::Stand,
-            }, ActorAttributes {
-                direction: ActorDirection::North,
-                action: ActorAction::Stand,
-            }, ActorAttributes {
-                direction: ActorDirection::East,
-                action: ActorAction::Stand,
-            }, ActorAttributes {
-                direction: ActorDirection::West,
-                action: ActorAction::Stand,
-            }, ActorAttributes {
-                direction: ActorDirection::South,
-                action: ActorAction::Walk1,
-            }, ActorAttributes {
-                direction: ActorDirection::North,
-                action: ActorAction::Walk1,
-            }, ActorAttributes {
-                direction: ActorDirection::East,
-                action: ActorAction::Walk1,
-            }, ActorAttributes {
-                direction: ActorDirection::West,
-                action: ActorAction::Walk1,
-            },
-            ActorAttributes {
-                direction: ActorDirection::South,
-                action: ActorAction::Walk2,
-            }, ActorAttributes {
-                direction: ActorDirection::North,
-                action: ActorAction::Walk2,
-            }, ActorAttributes {
-                direction: ActorDirection::East,
-                action: ActorAction::Walk2,
-            }, ActorAttributes {
-                direction: ActorDirection::West,
-                action: ActorAction::Walk2,
-            },
-        ];
 
         // Create a vanilla overworld
 
         let mut world = OverWorld::new();
 
         world.add(Box::new(Actor::from(ctx, &"brendan".to_string(),
-                                       &attribute_batch, &ActorBehaviourType::Player)?), 0);
+                                        &ActorBehaviourType::Player)?), 1);
 
 
         let s = GameState {
@@ -141,7 +99,7 @@ impl GameState {
 
         // create a static viewport
         let view_port = ViewPort::new().init(ctx)
-            .origin(Point2 {x: 0.0, y: 0.0})
+            .origin(Point2 { x: 0.0, y: 0.0 })
             .padding(2.0);
 
         s.shared_state.borrow_mut().view_port = view_port;

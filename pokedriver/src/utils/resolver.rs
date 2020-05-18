@@ -43,19 +43,22 @@ pub fn get_actor_path(ctx: &mut Context, actor: &String, attributes: &ActorAttri
     let actor_direction= &attributes.direction;
     let actor_action = &attributes.action;
 
-    match actor_direction {
-        ActorDirection::North => base_path.push_str("north/"),
-        ActorDirection::South => base_path.push_str("south/"),
-        ActorDirection::East => base_path.push_str("east/"),
-        ActorDirection::West => base_path.push_str("west/"),
-    }
-
     base_path.push_str(&actor.to_string());
 
+    match actor_direction {
+        ActorDirection::North => base_path.push_str("/north"),
+        ActorDirection::South => base_path.push_str("/south"),
+        ActorDirection::East => base_path.push_str("/east"),
+        ActorDirection::West => base_path.push_str("/west"),
+        ActorDirection::None => {}
+    }
+
+
+
     match actor_action {
-        ActorAction::Stand => base_path.push_str("-stand"),
-        ActorAction::Walk1 => base_path.push_str("-walk-1"),
-        ActorAction::Walk2 => base_path.push_str("-walk-2"),
+        ActorAction::Stand => base_path.push_str("/stand"),
+        ActorAction::Walk1 => base_path.push_str("/walk-1"),
+        ActorAction::Walk2 => base_path.push_str("/walk-2"),
     }
 
     // finally push the file extension.
@@ -67,6 +70,53 @@ pub fn get_actor_path(ctx: &mut Context, actor: &String, attributes: &ActorAttri
     } else {
         Err(GameError::ResourceLoadError("The requested resource was not found".to_string()))
     }
+}
+
+pub fn get_actor_attr_batch(ctx: &mut Context, actor: &String) -> GameResult<Vec<ActorAttributes>> {
+    let mut base_path = "/testdata/sprites/actor/".to_string();
+    base_path.push_str(&actor.to_string());
+
+    if !filesystem::exists(ctx, base_path.clone()) {
+        return Err(GameError::ResourceLoadError("The requested resource was not found".to_string()));
+    }
+
+    let directions = vec!["/north", "/south", "/east", "/west"];
+
+    let mut attr: Vec<ActorAttributes> = Vec::new();
+
+    for d in directions {
+        let actor_direction = match d {
+            "/north" => ActorDirection::North,
+            "/south" => ActorDirection::South,
+            "/east" => ActorDirection::East,
+            "/west" => ActorDirection::West,
+            _ => ActorDirection::None
+        };
+        let subdir = base_path.clone() + d;
+        if filesystem::exists(ctx, subdir.clone()) {
+
+            if filesystem::exists(ctx, subdir.clone() + "/stand.png") {
+                attr.push(ActorAttributes {
+                    direction: actor_direction.clone(),
+                    action: ActorAction::Stand
+                });
+            }
+            if filesystem::exists(ctx, subdir.clone() + "/walk-1.png") {
+                attr.push(ActorAttributes {
+                    direction: actor_direction.clone(),
+                    action: ActorAction::Walk1
+                });
+            }
+            if filesystem::exists(ctx, subdir.clone() + "/walk-2.png") {
+                attr.push(ActorAttributes {
+                    direction: actor_direction.clone(),
+                    action: ActorAction::Walk2
+                });
+            }
+        }
+    }
+
+    Ok(attr)
 }
 
 #[inline]

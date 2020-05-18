@@ -18,6 +18,7 @@ pub enum ActorDirection {
     South,
     East,
     West,
+    None
 }
 
 #[derive(Eq, PartialEq, Hash, Clone)]
@@ -52,11 +53,12 @@ pub struct Actor {
 }
 
 impl Actor {
-    pub fn from(ctx: &mut Context, actor: &String, attribute_batch: &Vec<ActorAttributes>, actor_behaviour_type: &actor::loader::ActorBehaviourType) -> GameResult<Actor> {
+    pub fn from(ctx: &mut Context, actor: &String, actor_behaviour_type: &actor::loader::ActorBehaviourType) -> GameResult<Actor> {
         let mut map = HashMap::new();
+        let attribute_batch = resolver::get_actor_attr_batch(ctx, actor)?;
 
         for attribute in attribute_batch {
-            let actor_path = resolver::get_actor_path(ctx, actor, attribute)?;
+            let actor_path = resolver::get_actor_path(ctx, actor, &attribute)?;
             map.insert(attribute.clone(), graphics::Image::new(ctx, actor_path)?);
         }
 
