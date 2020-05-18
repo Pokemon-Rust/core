@@ -19,7 +19,7 @@ pub fn get_sprite_path(pokemon: &String, sprite_type: &PokemonSpriteType) -> Str
 
 pub fn get_tile_path(tile_type: &TileType) -> String {
     match tile_type {
-        TileType::GreenPatch => String::from("/tiles/GreenPatch-1-16x16.png")
+        TileType::GreenPatch => String::from("/testdata/tiles/GreenPatch-1-16x16.png")
     }
 }
 

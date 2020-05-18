@@ -15,8 +15,8 @@ type OverWorldLayers = Vec<OverWorldLayer>;
 pub struct ViewPort {
     pub origin: Point2<f32>,
     padding: f32,
-    width: f32,
-    height: f32,
+    pub width: f32,
+    pub height: f32,
 }
 
 impl ViewPort {
@@ -35,6 +35,11 @@ impl ViewPort {
     pub fn origin(mut self, pt: Point2<f32>) -> Self {
         self.origin = pt;
         self
+    }
+
+    pub fn move_origin(&mut self, dx: f32, dy: f32) {
+        self.origin.x += dx;
+        self.origin.y += dy;
     }
 
     pub fn init(mut self, ctx: &Context) -> Self {

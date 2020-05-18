@@ -1,8 +1,8 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 
-use cgmath::Point2;
-use cgmath::mint::Vector2;
+use cgmath::{Point2, Vector2};
+
 use ggez::{Context, GameResult, graphics};
 use ggez::graphics::DrawParam;
 
@@ -53,7 +53,7 @@ pub struct Actor {
 }
 
 impl Actor {
-    pub fn from(ctx: &mut Context, actor: &String, actor_behaviour_type: &actor::loader::ActorBehaviourType) -> GameResult<Actor> {
+    pub fn from(ctx: &mut Context, actor: &String, actor_behaviour_type: &actor::loader::ActorBehaviourType, location: Point2<f32>) -> GameResult<Actor> {
         let mut map = HashMap::new();
         let attribute_batch = resolver::get_actor_attr_batch(ctx, actor)?;
 
@@ -67,10 +67,7 @@ impl Actor {
                 direction: ActorDirection::South,
                 action: ActorAction::Stand,
             },
-            location: Point2 {
-                x: 100.0,
-                y: 100.0,
-            },
+            location,
             sprite_map: map.clone(),
             behaviour: actor::loader::load(actor_behaviour_type),
         };
@@ -81,7 +78,8 @@ impl Actor {
 
 impl Renderable for Actor {
     fn update(&mut self, state: &RefCell<SharedState>) -> GameResult<()> {
-        self.behaviour.run(&mut self.attributes, state)?;
+        self.behaviour.run(state, &mut self.attributes)?;
+        self.behaviour.transform_location(state, &mut self.location);
         Ok(())
     }
 

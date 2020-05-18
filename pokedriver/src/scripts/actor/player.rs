@@ -9,6 +9,8 @@ use crate::engine::controller::KeyEvent;
 use crate::engine::timer;
 use crate::scripts::actor::ActorBehaviour;
 use crate::engine::timer::TimeContextGroup;
+use crate::graphics::overworld::ViewPort;
+use cgmath::Point2;
 
 //todo: Implement navigation
 
@@ -25,7 +27,19 @@ impl PlayerBehaviour {
         }
     }
 
-    fn direct(&mut self, attr: &mut ActorAttributes, direction: ActorDirection) -> bool {
+    fn move_view_port(&self, view_port: &mut ViewPort, direction: &ActorDirection) {
+        let dx: f32 = 16.0;
+        let dy: f32 = 16.0;
+        match direction {
+            ActorDirection::North => view_port.move_origin(0.0, -dy),
+            ActorDirection::South => view_port.move_origin(0.0, dy),
+            ActorDirection::East => view_port.move_origin(dx, 0.0),
+            ActorDirection::West => view_port.move_origin(-dx, 0.0),
+            _ => {}
+        }
+    }
+
+    fn direct(&mut self, view_port: &mut ViewPort, attr: &mut ActorAttributes, direction: ActorDirection) -> bool {
         if attr.direction == direction {
             match attr.action {
                 ActorAction::Stand => {
@@ -46,6 +60,8 @@ impl PlayerBehaviour {
                     attr.action = ActorAction::Stand;
                 }
             }
+
+            self.move_view_port(view_port, &direction);
         } else {
             attr.action = ActorAction::Stand;
             attr.direction = direction;
@@ -73,7 +89,7 @@ impl PlayerBehaviour {
 }
 
 impl ActorBehaviour for PlayerBehaviour {
-    fn run(&mut self, attr: &mut ActorAttributes, state: &RefCell<SharedState>) -> GameResult<()> {
+    fn run(&mut self, state: &RefCell<SharedState>, attr: &mut ActorAttributes, ) -> GameResult<()> {
         let mut curr_state = state.borrow_mut();
         let key_down_event = &curr_state.controller.get_key_down_event();
         let key_up_event = &curr_state.controller.get_key_up_event();
@@ -89,10 +105,10 @@ impl ActorBehaviour for PlayerBehaviour {
 
             if !key_down_event.handled {
                 let handled = match key_down_event.keycode {
-                    KeyCode::Up => self.direct(attr, ActorDirection::North),
-                    KeyCode::Down => self.direct(attr, ActorDirection::South),
-                    KeyCode::Left => self.direct(attr, ActorDirection::West),
-                    KeyCode::Right => self.direct(attr, ActorDirection::East),
+                    KeyCode::Up => self.direct(&mut curr_state.view_port, attr, ActorDirection::North),
+                    KeyCode::Down => self.direct(&mut curr_state.view_port, attr, ActorDirection::South),
+                    KeyCode::Left => self.direct(&mut curr_state.view_port, attr, ActorDirection::West),
+                    KeyCode::Right => self.direct(&mut curr_state.view_port, attr, ActorDirection::East),
                     _ => false
                 };
 
@@ -106,5 +122,15 @@ impl ActorBehaviour for PlayerBehaviour {
         self.time_ctx_group.tick_all();
 
         Ok(())
+    }
+
+    fn transform_location(&mut self, state: &RefCell<SharedState>, location: &mut Point2<f32>) {
+        let cstate = state.borrow();
+        let width = cstate.view_port.width;
+        let height = cstate.view_port.height;
+        *location = Point2 {
+            x: cstate.view_port.origin.x + width / 2.0,
+            y: cstate.view_port.origin.y + height / 2.0
+        }
     }
 }

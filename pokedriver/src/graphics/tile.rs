@@ -1,5 +1,5 @@
 use ggez::{Context, GameResult, graphics};
-use cgmath::{Point2};
+use cgmath::{Point2, Vector2};
 
 use crate::utils::resolver;
 use ggez::graphics::DrawParam;
@@ -32,7 +32,15 @@ impl Renderable for Tile {
     }
 
     fn draw(&mut self, ctx: &mut Context, view_port: &ViewPort) -> GameResult<()> {
-        graphics::draw(ctx, &self.tile, DrawParam::new().dest(view_port.translate(self.location)))
+        let (width, height) = graphics::drawable_size(ctx);
+        let scale_vec = Vector2 {
+            x: width / 256.0,
+            y: height / 256.0,
+        };
+
+        graphics::draw(ctx, &self.tile, DrawParam::new()
+            .dest(view_port.translate(self.location))
+            .scale(scale_vec))
     }
 
     fn location(&self) -> Point2<f32> {

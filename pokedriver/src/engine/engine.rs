@@ -15,6 +15,7 @@ use crate::scripts::actor::loader::ActorBehaviourType;
 use crate::utils::resolver::get_fps;
 use crate::graphics::Renderable;
 use crate::graphics::overworld::{OverWorld, ViewPort};
+use crate::graphics::tile::{Tile, TileType};
 
 
 // The shared state contains fields that are used among different entities for communicating with
@@ -79,17 +80,14 @@ impl GameState {
     pub fn new(ctx: &mut Context) -> GameResult<GameState> {
         let font = graphics::Font::new(ctx, "/fonts/DejaVuSansMono.ttf")?;
 
-        //todo: create actor attribute batch-maps.
-        // testing actor loader.
-
-
         // Create a vanilla overworld
 
         let mut world = OverWorld::new();
 
         world.add(Box::new(Actor::from(ctx, &"brendan".to_string(),
-                                        &ActorBehaviourType::Player)?), 1);
+                                       &ActorBehaviourType::Player, Point2 { x: 100.0, y: 100.0 })?), 1);
 
+        world.add(Box::new(Tile::from(ctx, &TileType::GreenPatch, Point2 { x: 100.0, y: 100.0 })?), 0);
 
         let s = GameState {
             dt: std::time::Duration::from_nanos(0),
