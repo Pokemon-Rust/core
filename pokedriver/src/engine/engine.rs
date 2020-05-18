@@ -46,22 +46,20 @@ pub struct GameState {
 impl event::EventHandler for GameState {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         self.dt = timer::delta(ctx);
-        self.world.update(&self.shared_state)?;
-
+        while timer::check_update_time(ctx, get_fps() as u32) {
+            self.world.update(&self.shared_state)?;
+        }
         Ok(())
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
-        while timer::check_update_time(ctx, get_fps() as u32) {
-            graphics::clear(ctx, [0.1, 0.2, 0.3, 1.0].into());
-            let text = graphics::Text::new((format!("FPS: {:.0}", timer::fps(ctx)), self.fps_font, 32.0));
-            graphics::draw(ctx, &text, DrawParam::default())?;
+        graphics::clear(ctx, [0.1, 0.2, 0.3, 1.0].into());
+        let text = graphics::Text::new((format!("FPS: {:.0}", timer::fps(ctx)), self.fps_font, 32.0));
+        graphics::draw(ctx, &text, DrawParam::default())?;
 
-            // draw overworld at (0,0)
-            self.world.draw(ctx, &self.shared_state.borrow().view_port)?;
-
-            graphics::present(ctx)?;
-        }
+        // draw overworld at (0,0)
+        self.world.draw(ctx, &self.shared_state.borrow().view_port)?;
+        graphics::present(ctx)?;
 
         timer::yield_now();
         Ok(())

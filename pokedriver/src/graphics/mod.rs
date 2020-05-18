@@ -5,7 +5,7 @@ use crate::engine::engine::SharedState;
 use crate::graphics::overworld::ViewPort;
 
 pub mod sprite;
-mod sprite_sync;
+pub mod fsync;
 pub mod tile;
 pub mod actor;
 pub mod overworld;

@@ -2,7 +2,7 @@ use cgmath::Point2;
 use ggez::{Context, GameResult, graphics};
 use ggez::graphics::DrawParam;
 use crate::utils::resolver;
-use crate::graphics::sprite_sync::SpriteSync;
+use crate::graphics::fsync::FSync;
 
 pub struct SpriteVector {
     pub data: Vec<graphics::Image>
@@ -38,14 +38,14 @@ pub enum PokemonSpriteType {
 
 pub struct PokemonSprite {
     sprite_vec: SpriteVector,
-    sync: SpriteSync,
+    sync: FSync,
 }
 
 impl PokemonSprite {
     pub fn new() -> PokemonSprite {
         PokemonSprite {
             sprite_vec: SpriteVector::new(),
-            sync: SpriteSync::new(),
+            sync: FSync::new(),
         }
     }
 
@@ -56,7 +56,7 @@ impl PokemonSprite {
 
         let sprite = PokemonSprite {
             sprite_vec: SpriteVector::from(ctx, &sprite_vec_path, &frames)?,
-            sync: SpriteSync::new().set_frames(frames),
+            sync: FSync::new().set_frames(frames),
         };
 
         Ok(sprite)
