@@ -61,6 +61,7 @@ impl event::EventHandler for GameState {
         self.world.draw(ctx, &self.shared_state.borrow().view_port)?;
         graphics::present(ctx)?;
 
+
         timer::yield_now();
         Ok(())
     }
@@ -78,7 +79,7 @@ impl GameState {
     pub fn new(ctx: &mut Context) -> GameResult<GameState> {
         let font = graphics::Font::new(ctx, "/fonts/DejaVuSansMono.ttf")?;
 
-        // Create a vanilla overworld
+// Create a vanilla overworld
 
         let mut world = OverWorld::new();
 
@@ -94,7 +95,7 @@ impl GameState {
             shared_state: RefCell::new(SharedState::new()),
         };
 
-        // create a static viewport
+// create a static viewport
         let view_port = ViewPort::new().init(ctx)
             .origin(Point2 { x: 0.0, y: 0.0 })
             .padding(2.0);

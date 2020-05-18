@@ -1,16 +1,16 @@
 use ggez::event::KeyCode;
 
-#[derive(Clone)]
+#[derive(Eq, PartialEq, Copy, Clone)]
 pub struct KeyEvent {
     pub keycode: KeyCode,
-    pub handled: bool
+    pub handled: bool,
 }
 
 impl KeyEvent {
     pub fn new() -> KeyEvent {
         KeyEvent {
             keycode: KeyCode::Escape,
-            handled: true
+            handled: true,
         }
     }
 }
@@ -25,41 +25,102 @@ impl KeyEvent {
 // The assumption is that the frame-rate is faster than the player's response time.
 
 pub struct Controller {
-    key_down_event: KeyEvent,
-    key_up_event: KeyEvent
+    key_down_events: Vec<KeyEvent>,
+    key_up_events: Vec<KeyEvent>,
+    buffer_size: usize
 }
 
 impl Controller {
     pub fn new() -> Controller {
         Controller {
-            key_down_event: KeyEvent::new(),
-            key_up_event: KeyEvent::new()
+            key_down_events: Vec::new(),
+            key_up_events: Vec::new(),
+            buffer_size: 5
         }
     }
 
     pub fn set_key_down_event(&mut self, keycode: KeyCode) {
-        self.key_down_event.keycode = keycode;
-        self.key_down_event.handled = false;
+        if self.key_down_events.len() == self.buffer_size {
+            self.handle_key_down_event()
+        }
+        self.key_down_events.push(KeyEvent {
+            keycode,
+            handled: false,
+        });
     }
 
     pub fn get_key_down_event(&self) -> KeyEvent {
-        self.key_down_event.clone()
+        if self.key_down_events.len() > 0 {
+            self.key_down_events[0].clone()
+        } else {
+            KeyEvent::new()
+        }
     }
 
     pub fn handle_key_down_event(&mut self) {
-        self.key_down_event.handled = true;
+        if self.key_down_events.len() > 0 {
+            self.key_down_events.remove(0);
+        }
     }
 
     pub fn set_key_up_event(&mut self, keycode: KeyCode) {
-        self.key_up_event.keycode = keycode;
-        self.key_up_event.handled = false;
+        if self.key_up_events.len() == self.buffer_size {
+            self.handle_key_up_event()
+        }
+
+        self.key_up_events.push(KeyEvent {
+            keycode,
+            handled: false,
+        });
     }
 
     pub fn get_key_up_event(&self) -> KeyEvent {
-        self.key_up_event.clone()
+        if self.key_up_events.len() > 0 {
+            self.key_up_events[0].clone()
+        } else {
+            KeyEvent::new()
+        }
     }
 
     pub fn handle_key_up_event(&mut self) {
-        self.key_up_event.handled = true;
+        if self.key_up_events.len() > 0 {
+            self.key_up_events.remove(0);
+        }
+    }
+
+    pub fn clear_key_down_events(&mut self, index: usize) {
+        // remove all key_down events except the first one
+        let mut count = self.key_down_events.len() as i32 - index as i32;
+        while count > 0 {
+            self.key_down_events.remove(index);
+            count -= 1;
+        }
+    }
+
+    pub fn clear_key_up_events(&mut self, index: usize) {
+        // remove all key_up events except the first one
+        let mut count = self.key_up_events.len() as i32  - index as i32;
+        while count > 0 {
+            self.key_up_events.remove(index);
+            count -= 1;
+        }
+    }
+
+    pub fn peek_key_down_event(&self) -> KeyEvent {
+        let length = self.key_down_events.len();
+        if length > 0 {
+            self.key_down_events[length- 1]
+        } else {
+            KeyEvent::new()
+        }
+    }
+
+    pub fn peek_key_up_event(&self) -> KeyEvent {
+        let length = self.key_up_events.len();
+        if length > 0 {
+            self.key_up_events[length- 1]
+        } else {
+            KeyEvent::new()
+        }
     }
 }
