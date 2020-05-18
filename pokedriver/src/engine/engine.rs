@@ -10,6 +10,7 @@ use cgmath::Point2;
 use crate::engine::controller::Controller;
 use crate::graphics::actor::Actor;
 use crate::graphics::sprite::PokemonSprite;
+
 use crate::scripts::actor::loader::ActorBehaviourType;
 use crate::utils::resolver::get_fps;
 use crate::graphics::Renderable;
