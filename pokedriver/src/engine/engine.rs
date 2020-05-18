@@ -9,10 +9,8 @@ use cgmath::Point2;
 
 use crate::engine::controller::Controller;
 use crate::graphics::actor::{Actor, ActorAction, ActorAttributes, ActorDirection};
-use crate::graphics::sprite::PokemonSprite;
 use crate::scripts::actor::loader::ActorBehaviourType;
 use crate::utils::resolver::get_fps;
-use crate::graphics::sprite::PokemonSpriteType::NormalFront;
 use crate::graphics::Renderable;
 use crate::graphics::overworld::{OverWorld, ViewPort};
 
