@@ -7,6 +7,6 @@ pub enum ActorBehaviourType {
 
 pub fn load(key: &ActorBehaviourType) -> Box<dyn ActorBehaviour> {
     match key {
-        ActorBehaviourType::Player => Box::new(actor::player::PlayerBehaviour::new().speed(4.0))
+        ActorBehaviourType::Player => Box::new(actor::player::PlayerBehaviour::new().speed(3.0))
     }
 }

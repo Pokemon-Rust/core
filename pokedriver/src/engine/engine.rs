@@ -16,6 +16,7 @@ use crate::utils::resolver::get_fps;
 use crate::graphics::Renderable;
 use crate::graphics::overworld::{OverWorld, ViewPort};
 use crate::graphics::tile::{Tile, TileType};
+use crate::engine::input::Input;
 
 
 // The shared state contains fields that are used among different entities for communicating with
@@ -39,48 +40,16 @@ impl SharedState {
 pub struct GameState {
     dt: std::time::Duration,
     fps_font: Font,
+    input: Input,
     world: Box<dyn Renderable>,
     shared_state: RefCell<SharedState>,
-}
-
-impl event::EventHandler for GameState {
-    fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
-        self.dt = timer::delta(ctx);
-        while timer::check_update_time(ctx, get_fps() as u32) {
-            self.world.update(&self.shared_state)?;
-        }
-        Ok(())
-    }
-
-    fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
-        graphics::clear(ctx, [0.1, 0.2, 0.3, 1.0].into());
-        let text = graphics::Text::new((format!("FPS: {:.0}", timer::fps(ctx)), self.fps_font, 32.0));
-        graphics::draw(ctx, &text, DrawParam::default())?;
-
-        // draw overworld at (0,0)
-        self.world.draw(ctx, &self.shared_state.borrow().view_port)?;
-        graphics::present(ctx)?;
-
-
-        timer::yield_now();
-        Ok(())
-    }
-
-    fn key_down_event(&mut self, _ctx: &mut Context, keycode: KeyCode, _keymod: KeyMods, _repeat: bool) {
-        self.shared_state.borrow_mut().controller.set_key_down_event(keycode);
-    }
-
-    fn key_up_event(&mut self, _ctx: &mut Context, keycode: KeyCode, _keymod: KeyMods) {
-        self.shared_state.borrow_mut().controller.set_key_up_event(keycode);
-    }
 }
 
 impl GameState {
     pub fn new(ctx: &mut Context) -> GameResult<GameState> {
         let font = graphics::Font::new(ctx, "/fonts/DejaVuSansMono.ttf")?;
 
-// Create a vanilla overworld
-
+        // Create a vanilla overworld
         let mut world = OverWorld::new();
 
         world.add(Box::new(Actor::from(ctx, &"brendan".to_string(),
@@ -91,11 +60,12 @@ impl GameState {
         let s = GameState {
             dt: std::time::Duration::from_nanos(0),
             fps_font: font,
+            input: Input::new(),
             world: Box::new(world),
             shared_state: RefCell::new(SharedState::new()),
         };
 
-// create a static viewport
+        // create a static viewport
         let view_port = ViewPort::new().init(ctx)
             .origin(Point2 { x: 0.0, y: 0.0 })
             .padding(2.0);
@@ -128,3 +98,27 @@ impl GameState {
         event::run(ctx, event_loop, state)
     }
 }
+
+impl event::EventHandler for GameState {
+    fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
+        self.dt = timer::delta(ctx);
+        while timer::check_update_time(ctx, get_fps() as u32) {
+            self.input.capture(ctx, &self.shared_state);
+            self.world.update(&self.shared_state)?;
+        }
+        Ok(())
+    }
+
+    fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
+        graphics::clear(ctx, [0.1, 0.2, 0.3, 1.0].into());
+        let text = graphics::Text::new((format!("FPS: {:.0}", timer::fps(ctx)), self.fps_font, 32.0));
+        graphics::draw(ctx, &text, DrawParam::default())?;
+
+        self.world.draw(ctx, &self.shared_state.borrow().view_port)?;
+        graphics::present(ctx)?;
+
+        timer::yield_now();
+        Ok(())
+    }
+}
+

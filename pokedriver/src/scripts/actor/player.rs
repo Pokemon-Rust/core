@@ -1,19 +1,17 @@
 // Actor-script for Player.
 
-use crate::graphics::actor::{ActorDirection, ActorAction, ActorAttributes, Actor};
+use crate::graphics::actor::{ActorDirection, ActorAction, ActorAttributes};
 use crate::engine::engine::{SharedState};
 use ggez::GameResult;
 use std::cell::RefCell;
 use ggez::event::KeyCode;
-use crate::engine::controller::KeyEvent;
-use crate::engine::timer;
+use crate::engine::controller::Controller;
 use crate::scripts::actor::ActorBehaviour;
-use crate::engine::timer::TimeContextGroup;
 use crate::graphics::overworld::ViewPort;
 use crate::graphics::fsync::FSync;
 use cgmath::Point2;
-use std::time::Duration;
 use crate::utils::resolver;
+use std::borrow::Borrow;
 
 //todo: Implement navigation
 
@@ -21,7 +19,22 @@ use crate::utils::resolver;
 enum SpriteTransitionType {
     Walk,
     Turn,
+    BypassTurn,
     None,
+}
+
+struct KeyState {
+    handled: bool,
+    key: KeyCode
+}
+
+impl KeyState {
+    pub fn new() -> KeyState {
+        KeyState {
+            handled: true,
+            key: KeyCode::Escape
+        }
+    }
 }
 
 pub struct PlayerBehaviour {
@@ -31,8 +44,7 @@ pub struct PlayerBehaviour {
     direction: ActorDirection,
     speed: f32,
     capframes: f32,
-    handled_keydown: bool,
-    handled_keyup: bool,
+    walk: KeyState,
     sprite_transition: SpriteTransitionType,
 }
 
@@ -46,8 +58,7 @@ impl PlayerBehaviour {
             direction: ActorDirection::None,
             speed: 2.0,
             capframes: 0.0,
-            handled_keydown: false,
-            handled_keyup: false,
+            walk: KeyState::new(),
             sprite_transition: SpriteTransitionType::None,
         }
     }
@@ -77,19 +88,6 @@ impl PlayerBehaviour {
         }
     }
 
-    fn force_viewport_transition(&mut self, view_port: &mut ViewPort) {
-        if self.transition > 0.0 {
-            match self.direction {
-                ActorDirection::North => view_port.move_origin(0.0, -self.transition),
-                ActorDirection::South => view_port.move_origin(0.0, self.transition),
-                ActorDirection::East => view_port.move_origin(self.transition, 0.0),
-                ActorDirection::West => view_port.move_origin(-self.transition, 0.0),
-                _ => {}
-            };
-        }
-        self.transition = 0.0;
-    }
-
     fn apply_sprite_transition(&mut self, attr: &mut ActorAttributes, direction: ActorDirection) {
         let capframes = self.capframes;
         // Turns need to be faster than walks.
@@ -112,9 +110,8 @@ impl PlayerBehaviour {
 
             if self.fsync.get_event_frame() == (f2_slice - 1.0) as u16 {
                 self.sprite_transition = SpriteTransitionType::None;
-                self.handled_keydown = true;
+                self.walk.handled = true;
             }
-
         } else if self.sprite_transition == SpriteTransitionType::Turn {
             // Sprite transition for turn:- (Stand) -> Walk_i -> Stand
             // Frame Definition:
@@ -135,11 +132,14 @@ impl PlayerBehaviour {
                 attr.action = ActorAction::Stand;
             }
 
-
             if self.fsync.get_event_frame() == (f2_slice - 1.0) as u16 {
                 self.sprite_transition = SpriteTransitionType::None;
-                self.handled_keydown = true;
+                self.walk.handled = true;
             }
+        } else if self.sprite_transition == SpriteTransitionType::BypassTurn {
+            attr.direction = direction;
+            self.sprite_transition = SpriteTransitionType::None;
+            self.walk.handled = true;
         }
     }
 
@@ -154,13 +154,13 @@ impl PlayerBehaviour {
     #[inline]
     fn try_handle(&mut self) {
         if self.fsync.get_event_frame() == resolver::get_fps() - 1 {
-            self.handled_keydown = true;
+            self.walk.handled = true;
         }
     }
 
     #[inline]
-    fn map_to_direction(&mut self, keyevent: KeyEvent) -> ActorDirection {
-        match keyevent.keycode {
+    fn map_to_direction(&mut self, keycode: KeyCode) -> ActorDirection {
+        match keycode {
             KeyCode::Up => ActorDirection::North,
             KeyCode::Down => ActorDirection::South,
             KeyCode::Left => ActorDirection::West,
@@ -183,72 +183,73 @@ impl PlayerBehaviour {
             self.sprite_transition = SpriteTransitionType::Walk;
         } else {
             self.transition = 0.0;
-            self.sprite_transition = SpriteTransitionType::Turn;
+            if self.sprite_transition != SpriteTransitionType::BypassTurn {
+                self.sprite_transition = SpriteTransitionType::Turn;
+            }
         }
 
         self.direction = direction.clone();
     }
 
-    fn is_valid_walk(&self, key_event: KeyEvent) -> bool {
-        match key_event.keycode {
-            KeyCode::Up | KeyCode::Down | KeyCode::Left | KeyCode::Right => true,
-            _ => false
+    fn set_walk_key(&mut self, controller: &Controller) -> KeyCode {
+        let mut keycode = self.walk.key;
+
+        if !controller.is_keydown(keycode) {
+            if controller.is_keydown(KeyCode::Up) {
+                keycode = KeyCode::Up;
+            } else if controller.is_keydown(KeyCode::Down) {
+                keycode = KeyCode::Down;
+            } else if controller.is_keydown(KeyCode::Left) {
+                keycode = KeyCode::Left;
+            } else if controller.is_keydown(KeyCode::Right) {
+                keycode = KeyCode::Right;
+            }
         }
+
+        self.walk.key = keycode;
+        keycode
     }
 
-    fn release_walk_key(&self, key_event: KeyEvent) -> bool {
-        self.is_valid_walk(key_event.clone()) && !key_event.clone().handled
+    fn is_valid_walk(&self, controller: &Controller) -> bool {
+        controller.is_keydown(KeyCode::Up) ||
+            controller.is_keydown(KeyCode::Down) ||
+            controller.is_keydown(KeyCode::Left) ||
+            controller.is_keydown(KeyCode::Right)
     }
 }
 
 impl ActorBehaviour for PlayerBehaviour {
     fn run(&mut self, state: &RefCell<SharedState>, attr: &mut ActorAttributes) -> GameResult<()> {
-        let mut curr_state = state.borrow_mut();
-        let key_down_event = &curr_state.controller.get_key_down_event();
-        let key_up_event = &curr_state.controller.get_key_up_event();
+        let mut cstate = state.borrow_mut();
+        let controller = &cstate.borrow().controller;
 
+        //println!("keydown: state-count: {}", self.fsync.get_event_frame());
 
-        if self.release_walk_key(key_up_event.clone()) {
-            // clear key-down events starting from index :- 1.
-
-            let peek_keydown_event = &curr_state.controller.peek_key_down_event();
-            let is_peek_different = peek_keydown_event.keycode != key_down_event.keycode;
-
-            if is_peek_different {
-                &curr_state.controller.clear_key_down_events(2);
-                &curr_state.controller.set_key_down_event(peek_keydown_event.keycode);
-                self.handled_keyup = true;
-            } else {
-                &curr_state.controller.clear_key_down_events(1);
-            }
-
-            if self.handled_keyup {
-                self.handled_keyup = false;
-                &curr_state.controller.handle_key_up_event();
-            }
+        if self.is_valid_walk(controller) && self.walk.handled {
+            self.walk.handled = false;
+            self.set_walk_key(controller);
         }
 
 
-        if !key_down_event.handled {
-            if self.is_valid_walk(key_down_event.clone()) {
-                if self.fsync.cycle_completed() {
-                    let direction = self.map_to_direction(key_down_event.clone());
-                    self.pre_walk();
-                    self.set_transition(&mut curr_state.view_port, attr, direction.clone());
-                }
+        if !self.walk.handled {
+            let pressed_key = self.walk.key;
 
-                self.apply_viewport_transition(&mut curr_state.view_port);
-                self.apply_sprite_transition(attr, self.direction.clone());
+            if self.fsync.cycle_completed() {
+                let direction = self.map_to_direction(pressed_key);
+                self.pre_walk();
+                self.set_transition(&mut cstate.view_port, attr, direction.clone());
+            }
 
-                self.try_handle();
+            self.apply_viewport_transition(&mut cstate.view_port);
 
-                self.fsync.update();
+            self.apply_sprite_transition(attr, self.direction.clone());
 
-                if self.handled_keydown {
-                    self.handled_keydown = false;
-                    curr_state.controller.handle_key_down_event();
-                    self.fsync.reset_frames();
-                }
+            self.try_handle();
+
+            self.fsync.update();
+
+            if self.walk.handled {
+                self.fsync.reset_frames();
             }
         }
 
