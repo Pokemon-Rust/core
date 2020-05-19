@@ -3,14 +3,14 @@ use std::collections::HashSet;
 
 #[derive(Eq, PartialEq, Copy, Clone, Hash)]
 pub struct KeyEvent {
-    pub keycode: KeyCode,
+    pub key: KeyCode,
     pub handled: bool,
 }
 
 impl KeyEvent {
     pub fn new() -> KeyEvent {
         KeyEvent {
-            keycode: KeyCode::Escape,
+            key: KeyCode::Escape,
             handled: true,
         }
     }

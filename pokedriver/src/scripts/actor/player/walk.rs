@@ -1,19 +1,16 @@
-// Actor-script for Player.
-
-use crate::graphics::actor::{ActorDirection, ActorAction, ActorAttributes};
-use crate::engine::engine::{SharedState};
-use ggez::GameResult;
-use std::cell::RefCell;
-use ggez::event::KeyCode;
-use crate::engine::controller::Controller;
-use crate::scripts::actor::ActorBehaviour;
-use crate::graphics::overworld::ViewPort;
+use crate::graphics::actor::{ActorAction, ActorDirection, ActorAttributes};
 use crate::graphics::fsync::FSync;
-use cgmath::Point2;
 use crate::utils::resolver;
+use ggez::input::keyboard::KeyCode;
+use crate::graphics::overworld::ViewPort;
+use crate::engine::controller::{Controller, KeyEvent};
+use crate::scripts::actor::ActorBehaviour;
+use std::cell::RefCell;
+use crate::engine::engine::SharedState;
+use ggez::GameResult;
 use std::borrow::Borrow;
-
-//todo: Implement navigation
+use cgmath::Point2;
+use ggez::GameError::ShaderProgramError;
 
 #[derive(Eq, PartialEq)]
 enum SpriteTransitionType {
@@ -23,43 +20,32 @@ enum SpriteTransitionType {
     None,
 }
 
-struct KeyState {
-    handled: bool,
-    key: KeyCode
-}
-
-impl KeyState {
-    pub fn new() -> KeyState {
-        KeyState {
-            handled: true,
-            key: KeyCode::Escape
-        }
-    }
-}
-
-pub struct PlayerBehaviour {
+pub struct WalkBehaviour {
     action_state: ActorAction,
     fsync: FSync,
     transition: f32,
     direction: ActorDirection,
     speed: f32,
     capframes: f32,
-    walk: KeyState,
+    key_event: KeyEvent,
     sprite_transition: SpriteTransitionType,
+    is_walking: bool,
+    bypass_counter: usize
 }
 
-
-impl PlayerBehaviour {
-    pub fn new() -> PlayerBehaviour {
-        PlayerBehaviour {
+impl WalkBehaviour {
+    pub fn new() -> WalkBehaviour {
+        WalkBehaviour {
             action_state: ActorAction::Stand,
             fsync: FSync::new().set_frames(resolver::get_fps()),
             transition: 0.0,
             direction: ActorDirection::None,
             speed: 2.0,
             capframes: 0.0,
-            walk: KeyState::new(),
+            key_event: KeyEvent::new(),
             sprite_transition: SpriteTransitionType::None,
+            is_walking: false,
+            bypass_counter: 0
         }
     }
 
@@ -109,8 +95,8 @@ impl PlayerBehaviour {
 
 
             if self.fsync.get_event_frame() == (f2_slice - 1.0) as u16 {
-                self.sprite_transition = SpriteTransitionType::None;
-                self.walk.handled = true;
+                //self.sprite_transition = SpriteTransitionType::None;
+                self.key_event.handled = true;
             }
         } else if self.sprite_transition == SpriteTransitionType::Turn {
             // Sprite transition for turn:- (Stand) -> Walk_i -> Stand
@@ -134,12 +120,12 @@ impl PlayerBehaviour {
 
             if self.fsync.get_event_frame() == (f2_slice - 1.0) as u16 {
                 self.sprite_transition = SpriteTransitionType::None;
-                self.walk.handled = true;
+                self.key_event.handled = true;
             }
         } else if self.sprite_transition == SpriteTransitionType::BypassTurn {
             attr.direction = direction;
-            self.sprite_transition = SpriteTransitionType::None;
-            self.walk.handled = true;
+            //self.sprite_transition = SpriteTransitionType::None;
+            self.key_event.handled = true;
         }
     }
 
@@ -154,7 +140,7 @@ impl PlayerBehaviour {
     #[inline]
     fn try_handle(&mut self) {
         if self.fsync.get_event_frame() == resolver::get_fps() - 1 {
-            self.walk.handled = true;
+            self.key_event.handled = true;
         }
     }
 
@@ -171,7 +157,7 @@ impl PlayerBehaviour {
 
     fn set_transition(&mut self, view_port: &mut ViewPort, attr: &mut ActorAttributes, direction: ActorDirection) {
         // if player is moving in the same direction, we need a viewport transition.
-        if attr.direction == direction {
+        if attr.direction == direction || self.is_walking {
             let dx: f32 = 16.0 * view_port.width / 256.0;
             let dy: f32 = 16.0 * view_port.height / 256.0;
             self.transition = match direction {
@@ -181,18 +167,17 @@ impl PlayerBehaviour {
             };
 
             self.sprite_transition = SpriteTransitionType::Walk;
+            attr.direction = direction.clone();
         } else {
             self.transition = 0.0;
-            if self.sprite_transition != SpriteTransitionType::BypassTurn {
-                self.sprite_transition = SpriteTransitionType::Turn;
-            }
+            self.sprite_transition = SpriteTransitionType::Turn;
         }
 
         self.direction = direction.clone();
     }
 
     fn set_walk_key(&mut self, controller: &Controller) -> KeyCode {
-        let mut keycode = self.walk.key;
+        let mut keycode = self.key_event.key;
 
         if !controller.is_keydown(keycode) {
             if controller.is_keydown(KeyCode::Up) {
@@ -206,7 +191,7 @@ impl PlayerBehaviour {
             }
         }
 
-        self.walk.key = keycode;
+        self.key_event.key = keycode;
         keycode
     }
 
@@ -216,23 +201,44 @@ impl PlayerBehaviour {
             controller.is_keydown(KeyCode::Left) ||
             controller.is_keydown(KeyCode::Right)
     }
+
+    fn evaluate(&mut self, controller: &Controller, attr: &ActorAttributes) {
+        // wait for any pending key_events and then validate current key_event.
+        if self.key_event.handled && self.is_valid_walk(controller) {
+            // register a new key_event.
+            self.key_event.handled = false;
+            self.set_walk_key(controller);
+
+            // set turn-bypass counter.
+            let direction = self.map_to_direction(self.key_event.key);
+            if direction == attr.direction {
+                self.is_walking = true;
+                self.bypass_counter = 0;
+            }
+        } else {
+            // when the bypass_counter reaches F (capframes), it is set to 0.
+            // indicating that the player's walk momentum is negligible, and any turn operation,
+            // will result only in sprite transitions and not viewport transitions.
+
+            self.bypass_counter += 1;
+            if self.bypass_counter == self.capframes as usize {
+                self.bypass_counter = 0;
+                self.is_walking = false;
+            }
+        }
+    }
 }
 
-impl ActorBehaviour for PlayerBehaviour {
+impl ActorBehaviour for WalkBehaviour {
     fn run(&mut self, state: &RefCell<SharedState>, attr: &mut ActorAttributes) -> GameResult<()> {
         let mut cstate = state.borrow_mut();
         let controller = &cstate.borrow().controller;
 
         //println!("keydown: state-count: {}", self.fsync.get_event_frame());
+        self.evaluate(controller, attr);
 
-        if self.is_valid_walk(controller) && self.walk.handled {
-            self.walk.handled = false;
-            self.set_walk_key(controller);
-        }
-
-
-        if !self.walk.handled {
-            let pressed_key = self.walk.key;
+        if !self.key_event.handled {
+            let pressed_key = self.key_event.key;
 
             if self.fsync.cycle_completed() {
                 let direction = self.map_to_direction(pressed_key);
@@ -248,7 +254,7 @@ impl ActorBehaviour for PlayerBehaviour {
 
             self.fsync.update();
 
-            if self.walk.handled {
+            if self.key_event.handled {
                 self.fsync.reset_frames();
             }
         }
@@ -268,3 +274,5 @@ impl ActorBehaviour for PlayerBehaviour {
         }
     }
 }
+
+
