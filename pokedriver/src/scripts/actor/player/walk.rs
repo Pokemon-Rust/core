@@ -86,9 +86,9 @@ impl WalkBehaviour {
             let f1_slice = slice;
             let f2_slice = capframes;
 
-            if self.fsync.get_frame_f32() < f1_slice {
+            if self.fsync.get_event_frame() < f1_slice as u16 {
                 attr.action = self.action_state.clone();
-            } else if self.fsync.get_frame_f32() < f2_slice {
+            } else if self.fsync.get_event_frame() < f2_slice as u16 {
                 attr.action = ActorAction::Stand;
             }
 
@@ -111,9 +111,9 @@ impl WalkBehaviour {
             // Change direction.
             attr.direction = direction;
 
-            if self.fsync.get_frame_f32() < f1_slice {
+            if self.fsync.get_event_frame() < f1_slice as u16 {
                 attr.action = self.action_state.clone();
-            } else if self.fsync.get_frame_f32() < f2_slice {
+            } else if self.fsync.get_event_frame() < f2_slice as u16 {
                 attr.action = ActorAction::Stand;
             }
 
