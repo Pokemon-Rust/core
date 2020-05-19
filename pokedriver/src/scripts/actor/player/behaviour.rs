@@ -1,17 +1,11 @@
 // Actor-script for Player.
 
-use crate::graphics::actor::{ActorDirection, ActorAction, ActorAttributes};
-use crate::engine::engine::{SharedState};
+use crate::graphics::actor::ActorAttributes;
+use crate::engine::engine::SharedState;
 use ggez::GameResult;
 use std::cell::RefCell;
-use ggez::event::KeyCode;
-use crate::engine::controller::Controller;
 use crate::scripts::actor::ActorBehaviour;
-use crate::graphics::overworld::ViewPort;
-use crate::graphics::fsync::FSync;
 use cgmath::Point2;
-use crate::utils::resolver;
-use std::borrow::Borrow;
 use crate::scripts::actor::player::walk::WalkBehaviour;
 
 

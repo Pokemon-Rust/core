@@ -26,7 +26,7 @@ impl Tile {
 }
 
 impl Renderable for Tile {
-    fn update(&mut self, state: &RefCell<SharedState>) -> GameResult<()> {
+    fn update(&mut self, _state: &RefCell<SharedState>) -> GameResult<()> {
         // todo: support dynamic tiles.
         Ok(())
     }

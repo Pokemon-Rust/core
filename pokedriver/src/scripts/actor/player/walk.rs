@@ -10,7 +10,6 @@ use crate::engine::engine::SharedState;
 use ggez::GameResult;
 use std::borrow::Borrow;
 use cgmath::Point2;
-use ggez::GameError::ShaderProgramError;
 
 #[derive(Eq, PartialEq)]
 enum SpriteTransitionType {
@@ -234,7 +233,6 @@ impl ActorBehaviour for WalkBehaviour {
         let mut cstate = state.borrow_mut();
         let controller = &cstate.borrow().controller;
 
-        //println!("keydown: state-count: {}", self.fsync.get_event_frame());
         self.evaluate(controller, attr);
 
         if !self.key_event.handled {
@@ -263,7 +261,7 @@ impl ActorBehaviour for WalkBehaviour {
     }
 
     fn transform_location(&mut self, state: &RefCell<SharedState>, location: &mut Point2<f32>) {
-        let mut cstate = state.borrow_mut();
+        let cstate = state.borrow_mut();
         let width = cstate.view_port.width;
         let height = cstate.view_port.height;
 

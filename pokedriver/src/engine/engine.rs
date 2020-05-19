@@ -3,13 +3,11 @@ use std::path::PathBuf;
 
 use conf::{Backend, ModuleConf, NumSamples, WindowMode, WindowSetup};
 use ggez::{conf, Context, ContextBuilder, event, GameResult, graphics, timer};
-use ggez::event::{KeyCode, KeyMods};
 use graphics::{DrawParam, Font};
 use cgmath::Point2;
 
 use crate::engine::controller::Controller;
 use crate::graphics::actor::Actor;
-use crate::graphics::sprite::PokemonSprite;
 
 use crate::scripts::actor::loader::ActorBehaviourType;
 use crate::utils::resolver::get_fps;
