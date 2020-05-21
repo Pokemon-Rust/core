@@ -7,10 +7,12 @@ use crate::graphics::Component;
 use std::cell::RefCell;
 use crate::engine::engine::SharedState;
 use crate::graphics::overworld::ViewPort;
+use crate::graphics::components::ComponentIdentity;
 
 pub struct Tile {
     tile: graphics::Image,
     location: Point2<f32>,
+    tile_type: TileType
 }
 
 impl Tile {
@@ -18,6 +20,7 @@ impl Tile {
         let path = resolver::get_tile_path(tile_type);
         let tile = Tile {
             tile: graphics::Image::new(ctx, path)?,
+            tile_type: tile_type.clone(),
             location,
         };
 
@@ -46,8 +49,13 @@ impl Component for Tile {
     fn location(&self) -> Point2<f32> {
         self.location
     }
+
+    fn id(&self) -> ComponentIdentity {
+        ComponentIdentity::Tile(self.tile_type)
+    }
 }
 
+#[derive(Eq, PartialEq, Copy, Clone)]
 pub enum TileType {
     GreenPatch
 }

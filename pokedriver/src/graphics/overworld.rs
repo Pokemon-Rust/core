@@ -3,6 +3,7 @@ use ggez::{graphics, Context, GameResult};
 use crate::graphics::Component;
 use std::cell::RefCell;
 use crate::engine::engine::SharedState;
+use crate::graphics::components::ComponentIdentity;
 
 
 type OverWorldLayer = Vec<Box<dyn Component>>;
@@ -120,6 +121,10 @@ impl Component for OverWorld {
 
     fn location(&self) -> Point2<f32> {
         self.location
+    }
+
+    fn id(&self) -> ComponentIdentity {
+        ComponentIdentity::World
     }
 }
 

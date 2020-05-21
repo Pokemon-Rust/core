@@ -7,6 +7,8 @@ use std::cell::RefCell;
 use crate::scripts::actor::ActorBehaviour;
 use cgmath::Point2;
 use crate::scripts::actor::player::walk::WalkBehaviour;
+use crate::graphics::components::ComponentIdentity;
+use crate::scripts::actor::player::PlayerBehaviourType;
 
 
 pub struct PlayerBehaviour {
@@ -31,5 +33,13 @@ impl ActorBehaviour for PlayerBehaviour {
 
     fn transform_location(&mut self, state: &RefCell<SharedState>, location: &mut Point2<f32>) {
         self.walk.transform_location(state, location);
+    }
+
+    fn id(&self) -> ComponentIdentity {
+        if self.walk.id() != ComponentIdentity::Player(PlayerBehaviourType::None) {
+            self.walk.id()
+        } else {
+            ComponentIdentity::Player(PlayerBehaviourType::None)
+        }
     }
 }

@@ -2,14 +2,14 @@ use crate::graphics::actor::{ActorAction, ActorDirection, ActorAttributes};
 use crate::graphics::fsync::FSync;
 use crate::utils::resolver;
 use ggez::input::keyboard::KeyCode;
-use crate::graphics::overworld::ViewPort;
 use crate::engine::controller::{Controller, KeyEvent};
 use crate::scripts::actor::ActorBehaviour;
 use std::cell::RefCell;
 use crate::engine::engine::SharedState;
 use ggez::GameResult;
-use std::borrow::Borrow;
 use cgmath::Point2;
+use crate::graphics::components::ComponentIdentity;
+use crate::scripts::actor::player::PlayerBehaviourType;
 
 #[derive(Eq, PartialEq)]
 enum SpriteTransitionType {
@@ -53,7 +53,9 @@ impl WalkBehaviour {
         self
     }
 
-    fn apply_viewport_transition(&mut self, view_port: &mut ViewPort) {
+    fn apply_viewport_transition(&mut self, state: &RefCell<SharedState>) {
+        let view_port = &mut state.borrow_mut().view_port;
+
         let mut slice = self.transition / self.capframes;
         if self.transition > 0.0 {
             if self.transition < slice {
@@ -149,7 +151,7 @@ impl WalkBehaviour {
         }
     }
 
-    fn set_transition(&mut self, view_port: &mut ViewPort, attr: &mut ActorAttributes, direction: ActorDirection) {
+    fn set_transition(&mut self, attr: &mut ActorAttributes, direction: ActorDirection) {
         // if player is moving in the same direction, we need a viewport transition.
         if attr.direction == direction || self.is_walking {
             let dx: f32 = 16.0;
@@ -202,7 +204,16 @@ impl WalkBehaviour {
             controller.is_keydown(KeyCode::Right)
     }
 
-    fn evaluate(&mut self, controller: &mut Controller, attr: &ActorAttributes) {
+    fn own(&self, state: &RefCell<SharedState>) -> bool {
+        state.borrow_mut().controller.try_lock(self.id())
+    }
+
+    fn disown(&self, state: &RefCell<SharedState>) {
+        state.borrow_mut().controller.unlock(self.id());
+    }
+
+    fn evaluate(&mut self, state: &RefCell<SharedState>, attr: &ActorAttributes) {
+        let controller = &mut state.borrow_mut().controller;
         // wait for any pending key_events and then validate current key_event.
         if self.key_event.handled && self.is_valid_walk(controller) {
             // register a new key_event.
@@ -234,31 +245,35 @@ impl WalkBehaviour {
 
 impl ActorBehaviour for WalkBehaviour {
     fn run(&mut self, state: &RefCell<SharedState>, attr: &mut ActorAttributes) -> GameResult<()> {
-        let mut cstate = state.borrow_mut();
-        let controller = &mut cstate.controller;
 
-        self.evaluate(controller, attr);
+        // Try to own the controller. If it fails, skip.
+        if self.own(state) {
+            self.evaluate(state, attr);
 
-        if !self.key_event.handled {
-            let pressed_key = self.key_event.key;
+            if !self.key_event.handled {
+                let pressed_key = self.key_event.key;
 
-            if self.fsync.cycle_completed() {
-                let direction = self.map_to_direction(pressed_key);
-                self.pre_walk();
-                self.set_transition(&mut cstate.view_port, attr, direction.clone());
+                if self.fsync.cycle_completed() {
+                    let direction = self.map_to_direction(pressed_key);
+                    self.pre_walk();
+                    self.set_transition(attr, direction.clone());
+                }
+
+                self.apply_viewport_transition(state);
+
+                self.apply_sprite_transition(attr, self.direction.clone());
+
+                self.try_handle();
+
+                self.fsync.update();
+
+                if self.key_event.handled {
+                    self.fsync.reset_frames();
+                }
             }
 
-            self.apply_viewport_transition(&mut cstate.view_port);
-
-            self.apply_sprite_transition(attr, self.direction.clone());
-
-            self.try_handle();
-
-            self.fsync.update();
-
-            if self.key_event.handled {
-                self.fsync.reset_frames();
-            }
+            // Unlock the controller.
+            self.disown(state);
         }
 
         Ok(())
@@ -274,6 +289,12 @@ impl ActorBehaviour for WalkBehaviour {
             x: cstate.view_port.origin.x + width / 2.0,
             y: cstate.view_port.origin.y + height / 2.0,
         }
+    }
+
+    // return identity based on key-event. The controller should be owned by the behaviour till
+    // the key_event is handled.
+    fn id(&self) -> ComponentIdentity {
+        ComponentIdentity::Player(PlayerBehaviourType::Walk)
     }
 }
 

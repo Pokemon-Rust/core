@@ -11,6 +11,7 @@ use crate::scripts::actor;
 use crate::utils::resolver;
 use crate::graphics::Component;
 use crate::graphics::overworld::ViewPort;
+use crate::graphics::components::ComponentIdentity;
 
 #[derive(Eq, PartialEq, Hash, Clone)]
 pub enum ActorDirection {
@@ -100,6 +101,10 @@ impl Component for Actor {
 
     fn location(&self) -> Point2<f32> {
         self.location
+    }
+
+    fn id(&self) -> ComponentIdentity {
+        self.behaviour.id()
     }
 }
 
