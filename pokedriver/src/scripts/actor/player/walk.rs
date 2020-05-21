@@ -2,7 +2,7 @@ use crate::graphics::actor::{ActorAction, ActorDirection, ActorAttributes};
 use crate::graphics::fsync::FSync;
 use crate::utils::resolver;
 use ggez::input::keyboard::KeyCode;
-use crate::engine::controller::{Controller, KeyEvent};
+use crate::engine::controller::{Controller, KeyEvent, ControllerOwnership};
 use crate::scripts::actor::ActorBehaviour;
 use std::cell::RefCell;
 use crate::engine::engine::SharedState;
@@ -11,6 +11,7 @@ use cgmath::Point2;
 use crate::graphics::components::ComponentIdentity;
 use crate::scripts::actor::player::PlayerBehaviourType;
 
+
 #[derive(Eq, PartialEq)]
 enum SpriteTransitionType {
     Walk,
@@ -18,6 +19,7 @@ enum SpriteTransitionType {
     None,
 }
 
+#[derive(ControllerOwnership)]
 pub struct WalkBehaviour {
     action_state: ActorAction,
     fsync: FSync,
@@ -202,14 +204,6 @@ impl WalkBehaviour {
             controller.is_keydown(KeyCode::Down) ||
             controller.is_keydown(KeyCode::Left) ||
             controller.is_keydown(KeyCode::Right)
-    }
-
-    fn own(&self, state: &RefCell<SharedState>) -> bool {
-        state.borrow_mut().controller.try_lock(self.id())
-    }
-
-    fn disown(&self, state: &RefCell<SharedState>) {
-        state.borrow_mut().controller.unlock(self.id());
     }
 
     fn evaluate(&mut self, state: &RefCell<SharedState>, attr: &ActorAttributes) {

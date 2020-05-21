@@ -1,6 +1,8 @@
 use ggez::event::KeyCode;
 use std::collections::HashSet;
 use crate::graphics::components::ComponentIdentity;
+use std::cell::RefCell;
+use crate::engine::engine::SharedState;
 
 #[derive(Eq, PartialEq, Copy, Clone, Hash)]
 pub struct KeyEvent {
@@ -21,7 +23,7 @@ pub struct Controller {
     pressed_keys: HashSet<KeyCode>,
     unpressed_keys: HashSet<KeyCode>,
     locked: bool,
-    component_id: ComponentIdentity
+    component_id: ComponentIdentity,
 }
 
 impl Controller {
@@ -30,7 +32,7 @@ impl Controller {
             pressed_keys: HashSet::new(),
             unpressed_keys: HashSet::new(),
             locked: false,
-            component_id: ComponentIdentity::World
+            component_id: ComponentIdentity::World,
         }
     }
 
@@ -83,4 +85,10 @@ impl Controller {
             self.locked = false;
         }
     }
+}
+
+pub trait ControllerOwnership {
+    fn own(&self, state: &RefCell<SharedState>) -> bool;
+
+    fn disown(&self, state: &RefCell<SharedState>);
 }

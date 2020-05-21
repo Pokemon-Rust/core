@@ -12,7 +12,7 @@ use crate::scripts::actor::player::PlayerBehaviourType;
 
 
 pub struct PlayerBehaviour {
-   walk: Box<dyn ActorBehaviour>
+    walk: Box<dyn ActorBehaviour>
 }
 
 
@@ -27,7 +27,6 @@ impl PlayerBehaviour {
 impl ActorBehaviour for PlayerBehaviour {
     fn run(&mut self, state: &RefCell<SharedState>, attr: &mut ActorAttributes) -> GameResult<()> {
         self.walk.run(state, attr)?;
-
         Ok(())
     }
 
@@ -36,10 +35,6 @@ impl ActorBehaviour for PlayerBehaviour {
     }
 
     fn id(&self) -> ComponentIdentity {
-        if self.walk.id() != ComponentIdentity::Player(PlayerBehaviourType::None) {
-            self.walk.id()
-        } else {
-            ComponentIdentity::Player(PlayerBehaviourType::None)
-        }
+        ComponentIdentity::Player(PlayerBehaviourType::None)
     }
 }
