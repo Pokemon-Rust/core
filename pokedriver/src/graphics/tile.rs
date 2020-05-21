@@ -3,7 +3,7 @@ use cgmath::{Point2, Vector2};
 
 use crate::utils::resolver;
 use ggez::graphics::DrawParam;
-use crate::graphics::Renderable;
+use crate::graphics::Component;
 use std::cell::RefCell;
 use crate::engine::engine::SharedState;
 use crate::graphics::overworld::ViewPort;
@@ -25,7 +25,7 @@ impl Tile {
     }
 }
 
-impl Renderable for Tile {
+impl Component for Tile {
     fn update(&mut self, _state: &RefCell<SharedState>) -> GameResult<()> {
         // todo: support dynamic tiles.
         Ok(())

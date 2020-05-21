@@ -9,7 +9,7 @@ use ggez::graphics::DrawParam;
 use crate::engine::engine::SharedState;
 use crate::scripts::actor;
 use crate::utils::resolver;
-use crate::graphics::Renderable;
+use crate::graphics::Component;
 use crate::graphics::overworld::ViewPort;
 
 #[derive(Eq, PartialEq, Hash, Clone)]
@@ -76,7 +76,7 @@ impl Actor {
     }
 }
 
-impl Renderable for Actor {
+impl Component for Actor {
     fn update(&mut self, state: &RefCell<SharedState>) -> GameResult<()> {
         self.behaviour.run(state, &mut self.attributes)?;
         self.behaviour.transform_location(state, &mut self.location);

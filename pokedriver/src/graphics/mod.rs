@@ -10,7 +10,7 @@ pub mod tile;
 pub mod actor;
 pub mod overworld;
 
-pub trait Renderable {
+pub trait Component {
     fn update(&mut self, state: &RefCell<SharedState>) -> GameResult<()>;
     fn draw(&mut self, ctx: &mut Context, view_port: &ViewPort) -> GameResult<()>;
     fn location(&self) -> Point2<f32>;

@@ -1,11 +1,11 @@
 use cgmath::Point2;
 use ggez::{graphics, Context, GameResult};
-use crate::graphics::Renderable;
+use crate::graphics::Component;
 use std::cell::RefCell;
 use crate::engine::engine::SharedState;
 
 
-type OverWorldLayer = Vec<Box<dyn Renderable>>;
+type OverWorldLayer = Vec<Box<dyn Component>>;
 
 // The overworld is composed of multiple layers of Renderables.
 
@@ -88,7 +88,7 @@ pub struct OverWorld {
     location: Point2<f32>,
 }
 
-impl Renderable for OverWorld {
+impl Component for OverWorld {
     fn update(&mut self, state: &RefCell<SharedState>) -> GameResult<()> {
         for layer_index in 0..self.layers.len() {
             let layer = &mut self.layers[layer_index];
@@ -149,7 +149,7 @@ impl OverWorld {
     // 2. A layer index, which specifies whether an entity should be drawn over/under other entities.
     // 3. A dest point where the element is finally rendered.
 
-    pub fn add(&mut self, elem: Box<dyn Renderable>, layer_index: usize) {
+    pub fn add(&mut self, elem: Box<dyn Component>, layer_index: usize) {
         self.gen_layer(layer_index);
         self.layers[layer_index].push(elem);
     }

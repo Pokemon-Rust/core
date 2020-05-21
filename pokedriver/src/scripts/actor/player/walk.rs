@@ -28,7 +28,7 @@ pub struct WalkBehaviour {
     key_event: KeyEvent,
     sprite_transition: SpriteTransitionType,
     is_walking: bool,
-    bypass_counter: usize
+    bypass_counter: usize,
 }
 
 impl WalkBehaviour {
@@ -38,12 +38,12 @@ impl WalkBehaviour {
             fsync: FSync::new().set_frames(resolver::get_fps()),
             transition: 0.0,
             direction: ActorDirection::None,
-            speed: 2.0,
+            speed: 1.0,
             capframes: 0.0,
             key_event: KeyEvent::new(),
             sprite_transition: SpriteTransitionType::None,
             is_walking: false,
-            bypass_counter: 0
+            bypass_counter: 0,
         }
     }
 
@@ -170,7 +170,7 @@ impl WalkBehaviour {
         self.direction = direction.clone();
     }
 
-    fn set_walk_key(&mut self, controller: &Controller) -> KeyCode {
+    fn set_walk_key(&mut self, controller: &Controller) {
         let mut keycode = self.key_event.key;
 
         if !controller.is_keydown(keycode) {
@@ -186,7 +186,13 @@ impl WalkBehaviour {
         }
 
         self.key_event.key = keycode;
-        keycode
+    }
+
+    fn handle_keydown(&self, controller: &mut Controller) {
+        controller.handle_keydown(KeyCode::Up);
+        controller.handle_keydown(KeyCode::Down);
+        controller.handle_keydown(KeyCode::Left);
+        controller.handle_keydown(KeyCode::Right);
     }
 
     fn is_valid_walk(&self, controller: &Controller) -> bool {
@@ -196,7 +202,7 @@ impl WalkBehaviour {
             controller.is_keydown(KeyCode::Right)
     }
 
-    fn evaluate(&mut self, controller: &Controller, attr: &ActorAttributes) {
+    fn evaluate(&mut self, controller: &mut Controller, attr: &ActorAttributes) {
         // wait for any pending key_events and then validate current key_event.
         if self.key_event.handled && self.is_valid_walk(controller) {
             // register a new key_event.
@@ -220,13 +226,16 @@ impl WalkBehaviour {
                 self.is_walking = false;
             }
         }
+
+        // finally, we consume any key-events relevant to this behaviour, to prevent unwanted propagation.
+        self.handle_keydown(controller);
     }
 }
 
 impl ActorBehaviour for WalkBehaviour {
     fn run(&mut self, state: &RefCell<SharedState>, attr: &mut ActorAttributes) -> GameResult<()> {
         let mut cstate = state.borrow_mut();
-        let controller = &cstate.borrow().controller;
+        let controller = &mut cstate.controller;
 
         self.evaluate(controller, attr);
 

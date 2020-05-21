@@ -61,4 +61,12 @@ impl Controller {
         self.unpressed_keys.clone()
     }
 
+    pub fn handle_keydown(&mut self, keycode: KeyCode) {
+        self.pressed_keys.remove(&keycode);
+    }
+
+    pub fn handle_keyup(&mut self, keycode: KeyCode) {
+        self.unpressed_keys.remove(&keycode);
+    }
+
 }

@@ -11,7 +11,7 @@ use crate::graphics::actor::Actor;
 
 use crate::scripts::actor::loader::ActorBehaviourType;
 use crate::utils::resolver::get_fps;
-use crate::graphics::Renderable;
+use crate::graphics::Component;
 use crate::graphics::overworld::{OverWorld, ViewPort};
 use crate::graphics::tile::{Tile, TileType};
 use crate::engine::input::Input;
@@ -39,7 +39,7 @@ pub struct GameState {
     dt: std::time::Duration,
     fps_font: Font,
     input: Input,
-    world: Box<dyn Renderable>,
+    world: Box<dyn Component>,
     shared_state: RefCell<SharedState>,
 }
 
