@@ -66,7 +66,7 @@ impl GameState {
         // create a static viewport
         let view_port = ViewPort::new().init(ctx)
             .origin(Point2 { x: 0.0, y: 0.0 })
-            .padding(2.0);
+            .padding(16.0, 16.0);
 
         s.shared_state.borrow_mut().view_port = view_port;
 

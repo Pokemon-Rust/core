@@ -152,8 +152,8 @@ impl WalkBehaviour {
     fn set_transition(&mut self, view_port: &mut ViewPort, attr: &mut ActorAttributes, direction: ActorDirection) {
         // if player is moving in the same direction, we need a viewport transition.
         if attr.direction == direction || self.is_walking {
-            let dx: f32 = 16.0 * view_port.width / 256.0;
-            let dy: f32 = 16.0 * view_port.height / 256.0;
+            let dx: f32 = 16.0;
+            let dy: f32 = 16.0;
             self.transition = match direction {
                 ActorDirection::North | ActorDirection::South => dy,
                 ActorDirection::East | ActorDirection::West => dx,

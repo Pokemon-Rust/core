@@ -14,9 +14,12 @@ type OverWorldLayers = Vec<OverWorldLayer>;
 #[derive(Copy, Clone)]
 pub struct ViewPort {
     pub origin: Point2<f32>,
-    padding: f32,
+    pad_x: f32,
+    pad_y: f32,
     pub width: f32,
     pub height: f32,
+    scale_x: f32,
+    scale_y: f32
 }
 
 impl ViewPort {
@@ -26,9 +29,12 @@ impl ViewPort {
                 x: 0.0,
                 y: 0.0,
             },
-            padding: 0.0,
+            pad_x: 0.0,
+            pad_y: 0.0,
             width: 0.0,
             height: 0.0,
+            scale_x: 0.0,
+            scale_y: 0.0
         }
     }
 
@@ -38,20 +44,22 @@ impl ViewPort {
     }
 
     pub fn move_origin(&mut self, dx: f32, dy: f32) {
-        self.origin.x += dx;
-        self.origin.y += dy;
+        self.origin.x += dx * self.scale_x;
+        self.origin.y += dy * self.scale_y;
     }
 
     pub fn init(mut self, ctx: &Context) -> Self {
         let (width, height) = graphics::drawable_size(ctx);
         self.width = width;
         self.height = height;
-
+        self.scale_x = width / 256.0;
+        self.scale_y = height / 256.0;
         self
     }
 
-    pub fn padding(mut self, pad: f32) -> Self {
-        self.padding = pad;
+    pub fn padding(mut self, pad_x: f32, pad_y: f32) -> Self {
+        self.pad_x = pad_x * self.scale_x;
+        self.pad_y = pad_y * self.scale_y;
         self
     }
 
@@ -65,9 +73,9 @@ impl ViewPort {
     pub fn within_bounds(&self, pt: Point2<f32>) -> bool {
         let trans_pt = self.translate(pt);
 
-        if trans_pt.x > self.width || trans_pt.x + self.padding < 0.0 {
+        if trans_pt.x > self.width || trans_pt.x + self.pad_x < 0.0 {
             false
-        } else if trans_pt.y > self.height || trans_pt.y + self.padding < 0.0 {
+        } else if trans_pt.y > self.height || trans_pt.y + self.pad_x < 0.0 {
             false
         } else {
             true
