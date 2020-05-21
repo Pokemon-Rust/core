@@ -15,7 +15,6 @@ use cgmath::Point2;
 enum SpriteTransitionType {
     Walk,
     Turn,
-    BypassTurn,
     None,
 }
 
@@ -121,10 +120,6 @@ impl WalkBehaviour {
                 self.sprite_transition = SpriteTransitionType::None;
                 self.key_event.handled = true;
             }
-        } else if self.sprite_transition == SpriteTransitionType::BypassTurn {
-            attr.direction = direction;
-            //self.sprite_transition = SpriteTransitionType::None;
-            self.key_event.handled = true;
         }
     }
 

@@ -45,7 +45,7 @@ impl PokemonSprite {
     pub fn new() -> PokemonSprite {
         PokemonSprite {
             sprite_vec: SpriteVector::new(),
-            sync: FSync::new(),
+            sync: FSync::new().enable_interpolation(),
         }
     }
 
