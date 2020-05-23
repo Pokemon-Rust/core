@@ -19,7 +19,7 @@ pub struct PlayerBehaviour {
 impl PlayerBehaviour {
     pub fn new() -> PlayerBehaviour {
         PlayerBehaviour {
-            walk: Box::new(WalkBehaviour::new().speed(4.0))
+            walk: Box::new(WalkBehaviour::new().speed(3.33))
         }
     }
 }

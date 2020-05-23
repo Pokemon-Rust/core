@@ -59,8 +59,8 @@ impl GameState {
 
         world.add(Box::new(Actor::from(ctx, &"brendan".to_string(),
                                        &ActorBehaviourType::Player, Point2 { x: 100.0, y: 100.0 })?), 1);
-        world.add(Box::new(Tile::from(ctx, &TileType::GreenPatch, Point2 { x: view_port.origin.x + view_port.width / 2.0 - 24.0, y: view_port.origin.y + view_port.height / 2.0 - 24.0})?), 0);
-        world.add(Box::new(Tile::from(ctx, &TileType::GreenPatch, Point2 { x: view_port.origin.x + view_port.width / 2.0 + 24.0, y: view_port.origin.y + view_port.height / 2.0 - 24.0})?), 0);
+        world.add(Box::new(Tile::from(ctx, &TileType::GreenPatch, Point2 { x: view_port.origin.x + view_port.width / 2.0 - 24.0, y: view_port.origin.y + view_port.height / 2.0 - 24.0 })?), 0);
+        world.add(Box::new(Tile::from(ctx, &TileType::GreenPatch, Point2 { x: view_port.origin.x + view_port.width / 2.0 + 24.0, y: view_port.origin.y + view_port.height / 2.0 - 24.0 })?), 0);
 
         world.add(Box::new(Dialog::new(ctx, vec!["Hi there".to_string()], DialogType::TalkDialog, font, &shared_state)?), 2);
 
@@ -114,28 +114,37 @@ impl event::EventHandler for GameState {
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
         graphics::clear(ctx, [0.1, 0.2, 0.3, 1.0].into());
         let view_port = self.shared_state.borrow().view_port;
+
+
+
+        self.world.draw(ctx, &self.shared_state.borrow().view_port)?;
+
+
+        // Debugging layouts.
         let vert_line = Mesh::new_line(ctx, &[Point2 {
-            x: view_port.width/2.0,
-            y: 0.0
+            x: view_port.width / 2.0,
+            y: 0.0,
         }, Point2 {
             x: view_port.width / 2.0,
-            y: view_port.height
+            y: view_port.height,
         }], 1.0, graphics::WHITE)?;
 
         let hor_line = Mesh::new_line(ctx, &[Point2 {
             x: 0.0,
-            y: view_port.height / 2.0
+            y: view_port.height / 2.0,
         }, Point2 {
             x: view_port.width,
-            y: view_port.height / 2.0
+            y: view_port.height / 2.0,
         }], 1.0, graphics::WHITE)?;
-
-
 
         let text = graphics::Text::new((format!("FPS: {:.0}", timer::fps(ctx)), self.fps_font, 32.0));
         graphics::draw(ctx, &text, DrawParam::default())?;
 
-        self.world.draw(ctx, &self.shared_state.borrow().view_port)?;
+        let text2 = graphics::Text::new(("DEVELOPMENT MODE".to_string(), self.fps_font, 32.0));
+        graphics::draw(ctx, &text2, DrawParam::default().dest(Point2 {
+            x: view_port.width * 0.6,
+            y: 0.0,
+        }))?;
 
         graphics::draw(ctx, &vert_line, DrawParam::default())?;
         graphics::draw(ctx, &hor_line, DrawParam::default())?;

@@ -224,7 +224,7 @@ impl WalkBehaviour {
 
             // set turn-bypass counter.
             let direction = self.map_to_direction(self.key_event.key);
-            if direction == attr.direction {
+            if direction == attr.direction || self.is_walking {
                 self.is_walking = true;
                 self.bypass_counter = 0;
             }

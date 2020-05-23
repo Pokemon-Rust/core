@@ -2,7 +2,6 @@ use std::cell::RefCell;
 
 use cgmath::Point2;
 use ggez::GameResult;
-use ggez::graphics::Font;
 
 use crate::engine::controller::{Controller, ControllerOwnership, KeyEvent};
 use crate::engine::engine::SharedState;
@@ -12,7 +11,7 @@ use crate::scripts::dialog::DialogBehaviour;
 use ggez::event::KeyCode;
 use crate::graphics::fsync::FSync;
 use crate::utils::resolver;
-use std::borrow::Borrow;
+
 
 #[derive(ControllerOwnership)]
 pub struct TalkDialog {

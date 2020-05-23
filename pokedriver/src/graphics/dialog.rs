@@ -1,17 +1,15 @@
 use std::cell::RefCell;
 
-use cgmath::{Point2, vec1};
+use cgmath::Point2;
 use ggez::{Context, GameResult, graphics};
 
-use crate::engine::controller::{Controller, ControllerOwnership, KeyEvent};
 use crate::engine::engine::SharedState;
 use crate::graphics::Component;
 use crate::graphics::components::ComponentIdentity;
 use crate::graphics::overworld::ViewPort;
-use ggez::graphics::{Font, Text, DrawParam, Mesh, DrawMode, StrokeOptions, Rect, Color, FillOptions, Align};
+use ggez::graphics::{Font, Text, DrawParam, Mesh, DrawMode, Rect, Color, FillOptions, Align};
 use crate::scripts::dialog::DialogBehaviour;
 use crate::scripts::dialog::talk_dialog::talk::TalkDialog;
-use crate::graphics::fsync::FSync;
 
 pub struct Dialog {
     behaviour: Box<dyn DialogBehaviour>,
@@ -55,7 +53,7 @@ impl DialogAttrs {
 }
 
 impl Dialog {
-    pub fn new(ctx: &mut Context, text: Vec<String>, dialog_type: DialogType, font: Font, state: &RefCell<SharedState>) -> GameResult<Dialog> {
+    pub fn new(ctx: &mut Context, _text: Vec<String>, _dialog_type: DialogType, _font: Font, state: &RefCell<SharedState>) -> GameResult<Dialog> {
         Ok(Dialog {
             behaviour: Box::new(TalkDialog::new()),
             attrs: DialogAttrs::default(ctx, state)?,

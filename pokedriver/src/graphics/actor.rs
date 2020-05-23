@@ -86,7 +86,6 @@ impl Component for Actor {
 
     fn draw(&mut self, ctx: &mut Context, view_port: &ViewPort) -> GameResult<()> {
         let sprite = &self.sprite_map[&self.attributes];
-        let (width, height) = graphics::drawable_size(ctx);
         let scale_vec = Vector2 {
             x: view_port.scale_x,
             y: view_port.scale_y,

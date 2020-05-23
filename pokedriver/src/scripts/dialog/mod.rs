@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 use crate::engine::engine::SharedState;
-use ggez::{GameResult, Context};
+use ggez::GameResult;
 use cgmath::Point2;
 use crate::graphics::components::ComponentIdentity;
 use crate::graphics::dialog::DialogAttrs;
