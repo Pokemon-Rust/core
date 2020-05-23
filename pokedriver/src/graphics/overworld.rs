@@ -93,8 +93,8 @@ impl Component for OverWorld {
     fn update(&mut self, state: &RefCell<SharedState>) -> GameResult<()> {
         for layer_index in 0..self.layers.len() {
             let layer = &mut self.layers[layer_index];
-            for renderable in layer {
-                renderable.update(state)?;
+            for component in layer {
+                component.update(state)?;
             }
         }
 

@@ -23,6 +23,7 @@ pub struct WalkBehaviour {
     action_state: ActorAction,
     fsync: FSync,
     transition: f32,
+    transition_slice: f32,
     direction: ActorDirection,
     speed: f32,
     capframes: f32,
@@ -30,6 +31,7 @@ pub struct WalkBehaviour {
     sprite_transition: SpriteTransitionType,
     is_walking: bool,
     bypass_counter: usize,
+    dbg_count: usize
 }
 
 impl WalkBehaviour {
@@ -38,6 +40,7 @@ impl WalkBehaviour {
             action_state: ActorAction::Stand,
             fsync: FSync::new().set_frames(resolver::get_fps()),
             transition: 0.0,
+            transition_slice: 0.0,
             direction: ActorDirection::None,
             speed: 1.0,
             capframes: 0.0,
@@ -45,6 +48,7 @@ impl WalkBehaviour {
             sprite_transition: SpriteTransitionType::None,
             is_walking: false,
             bypass_counter: 0,
+            dbg_count: 0
         }
     }
 
@@ -57,7 +61,7 @@ impl WalkBehaviour {
     fn apply_viewport_transition(&mut self, state: &RefCell<SharedState>) {
         let view_port = &mut state.borrow_mut().view_port;
 
-        let mut slice = self.transition / self.capframes;
+        let mut slice = self.transition_slice;
         if self.transition > 0.0 {
             if self.transition < slice {
                 slice = self.transition;
@@ -70,6 +74,7 @@ impl WalkBehaviour {
                 _ => {}
             };
             self.transition -= slice;
+            self.dbg_count += 1;
         } else {
             self.transition = 0.0;
         }
@@ -156,18 +161,21 @@ impl WalkBehaviour {
         // if player is moving in the same direction, we need a viewport transition.
         let view_port = state.borrow().view_port;
         if attr.direction == direction || self.is_walking {
-            let dx: f32 = 8.0 * view_port.scale_x;
-            let dy: f32 = 8.0 * view_port.scale_y;
+            let dx: f32 = 16.0;
+            let dy: f32 = 16.0;
             self.transition = match direction {
                 ActorDirection::North | ActorDirection::South => dy,
                 ActorDirection::East | ActorDirection::West => dx,
                 _ => 0.0
             };
 
+            self.transition_slice = self.transition / self.capframes;
+
             self.sprite_transition = SpriteTransitionType::Walk;
             attr.direction = direction.clone();
         } else {
             self.transition = 0.0;
+            self.transition_slice = 0.0;
             self.sprite_transition = SpriteTransitionType::Turn;
         }
 
@@ -251,7 +259,6 @@ impl ActorBehaviour for WalkBehaviour {
                     let direction = self.map_to_direction(pressed_key);
                     self.pre_walk();
                     self.set_transition(attr, direction.clone(), state);
-                    println!("Transition ...");
                 }
 
                 self.apply_viewport_transition(state);
