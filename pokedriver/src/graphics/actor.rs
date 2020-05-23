@@ -88,8 +88,8 @@ impl Component for Actor {
         let sprite = &self.sprite_map[&self.attributes];
         let (width, height) = graphics::drawable_size(ctx);
         let scale_vec = Vector2 {
-            x: width / 256.0,
-            y: height / 256.0,
+            x: view_port.scale_x,
+            y: view_port.scale_y,
         };
 
 

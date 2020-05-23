@@ -8,7 +8,7 @@ use crate::engine::engine::SharedState;
 use crate::graphics::Component;
 use crate::graphics::components::ComponentIdentity;
 use crate::graphics::overworld::ViewPort;
-use ggez::graphics::{Font, Text, DrawParam, Mesh, DrawMode, StrokeOptions, Rect, Color, FillOptions};
+use ggez::graphics::{Font, Text, DrawParam, Mesh, DrawMode, StrokeOptions, Rect, Color, FillOptions, Align};
 use crate::scripts::dialog::DialogBehaviour;
 use crate::scripts::dialog::talk_dialog::talk::TalkDialog;
 use crate::graphics::fsync::FSync;
@@ -33,17 +33,19 @@ impl DialogAttrs {
         let view_port = state.borrow().view_port;
         let (width, height) = graphics::drawable_size(ctx);
         let location = Point2 {
-            x: view_port.origin.x + width / 256.0,
+            x: view_port.origin.x,
             y: view_port.origin.y + height * 0.75,
         };
         Ok(
             DialogAttrs {
                 location,
-                text: vec!["Hello there, and welcome to the world of Pokemon!".to_string(), "Your objective is to screw over your rival.".to_string(), "This is line three".to_string()],
+                text: vec!["Hello there, and welcome to the world of Pokemon! Hello there, and welcome to the world of Pokemon! Hello there, and welcome to the world of Pokemon! Hello there, and welcome to the world of Pokemon! Hello there, and welcome to the world of Pokemon!".to_string(),
+                           "Your objective is to screw over your rival.".to_string(),
+                           "It shouldn't be hard, he's a RETARD.".to_string()],
                 font: graphics::Font::new(ctx, "/fonts/pokemon_fire_red.ttf")?,
                 mesh: Mesh::new_rectangle(ctx, DrawMode::Fill(FillOptions::default()),
-                                          Rect::new(location.x, location.y, view_port.width - location.x, view_port.height * 0.75),
-                                          graphics::WHITE)?,
+                                          Rect::new(0.0, 0.0, width, height * 0.25),
+                                          Color::from_rgba(0, 0, 0, 153))?,
                 dialog_type: DialogType::TalkDialog,
                 text_index: 0,
                 visible: true,
@@ -70,11 +72,15 @@ impl Component for Dialog {
 
     fn draw(&mut self, ctx: &mut Context, view_port: &ViewPort) -> GameResult<()> {
         if self.attrs.visible {
-            let text = Text::new((self.attrs.text[self.attrs.text_index].clone(), self.attrs.font, 32.0));
+            let mut text = Text::new((self.attrs.text[self.attrs.text_index].clone(), self.attrs.font, 32.0));
+            text.set_bounds(Point2 {
+                x: self.location().x + view_port.width,
+                y: self.location().y + view_port.height * 0.25
+            }, Align::Left);
             graphics::draw(ctx, &self.attrs.mesh, DrawParam::new()
-                .dest(view_port.translate(self.attrs.location)))?;
+                .dest(view_port.translate(self.location())))?;
             graphics::draw(ctx, &text, DrawParam::new()
-                .dest(view_port.translate(self.attrs.location)))?
+                .dest(view_port.translate(self.location())))?
         }
         Ok(())
     }
