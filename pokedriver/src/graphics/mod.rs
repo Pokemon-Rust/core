@@ -11,6 +11,7 @@ pub mod tile;
 pub mod actor;
 pub mod overworld;
 pub mod components;
+pub mod dialog;
 
 pub trait Component {
     fn update(&mut self, state: &RefCell<SharedState>) -> GameResult<()>;
