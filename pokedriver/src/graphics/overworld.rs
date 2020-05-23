@@ -8,7 +8,7 @@ use crate::graphics::components::ComponentIdentity;
 
 type OverWorldLayer = Vec<Box<dyn Component>>;
 
-// The overworld is composed of multiple layers of Renderables.
+// The overworld is composed of multiple layers of Components.
 
 type OverWorldLayers = Vec<OverWorldLayer>;
 
@@ -101,17 +101,14 @@ impl Component for OverWorld {
         Ok(())
     }
 
-    // performs a coordinate-translation before rendering overworld elements.
-    // Note: this can be used by the orthogonal camera to move the overworld-view.
-
     fn draw(&mut self, ctx: &mut Context, view_port: &ViewPort) -> GameResult<()> {
         for layer_index in 0..self.layers.len() {
             let layer = &mut self.layers[layer_index];
-            for renderable in layer.iter_mut() {
+            for component in layer.iter_mut() {
 
-                // Draw the overworld element if and only if it is within the viewport.
-                if view_port.within_bounds(renderable.location()) {
-                    renderable.draw(ctx, view_port)?;
+                // Draw the component if and only if it is within the viewport.
+                if view_port.within_bounds(component.location()) {
+                    component.draw(ctx, view_port)?;
                 }
             }
         }
@@ -149,10 +146,9 @@ impl OverWorld {
         }
     }
 
-    // Each element in the overworld has three parameters.
-    // 1. A renderable which handles game logic and rendering of entities.
-    // 2. A layer index, which specifies whether an entity should be drawn over/under other entities.
-    // 3. A dest point where the element is finally rendered.
+    // Each element in the overworld has two parameters.
+    // 1. A component which handles game logic and rendering of entities.
+    // 2. A layer index, which specifies whether an entity should be drawn over/under other components.
 
     pub fn add(&mut self, elem: Box<dyn Component>, layer_index: usize) {
         self.gen_layer(layer_index);

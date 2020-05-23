@@ -11,7 +11,6 @@ use cgmath::Point2;
 use crate::graphics::components::ComponentIdentity;
 use crate::scripts::actor::player::PlayerBehaviourType;
 
-
 #[derive(Eq, PartialEq)]
 enum SpriteTransitionType {
     Walk,
@@ -285,8 +284,6 @@ impl ActorBehaviour for WalkBehaviour {
         }
     }
 
-    // return identity based on key-event. The controller should be owned by the behaviour till
-    // the key_event is handled.
     fn id(&self) -> ComponentIdentity {
         ComponentIdentity::Player(PlayerBehaviourType::Walk)
     }
