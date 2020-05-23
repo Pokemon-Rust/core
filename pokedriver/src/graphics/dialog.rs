@@ -11,6 +11,7 @@ use crate::graphics::overworld::ViewPort;
 use ggez::graphics::{Font, Text, DrawParam, Mesh, DrawMode, StrokeOptions, Rect, Color, FillOptions};
 use crate::scripts::dialog::DialogBehaviour;
 use crate::scripts::dialog::talk_dialog::talk::TalkDialog;
+use crate::graphics::fsync::FSync;
 
 pub struct Dialog {
     behaviour: Box<dyn DialogBehaviour>,
@@ -38,11 +39,11 @@ impl DialogAttrs {
         Ok(
             DialogAttrs {
                 location,
-                text: vec!["Hello there, and welcome to the world of Pokemon!".to_string(), "Your objective is to screw over your rival.".to_string()],
+                text: vec!["Hello there, and welcome to the world of Pokemon!".to_string(), "Your objective is to screw over your rival.".to_string(), "This is line three".to_string()],
                 font: graphics::Font::new(ctx, "/fonts/pokemon_fire_red.ttf")?,
                 mesh: Mesh::new_rectangle(ctx, DrawMode::Fill(FillOptions::default()),
                                           Rect::new(location.x, location.y, view_port.width - location.x, view_port.height * 0.75),
-                                          Color::from_rgba(0, 0, 0, 153))?,
+                                          graphics::WHITE)?,
                 dialog_type: DialogType::TalkDialog,
                 text_index: 0,
                 visible: true,
@@ -53,9 +54,8 @@ impl DialogAttrs {
 
 impl Dialog {
     pub fn new(ctx: &mut Context, text: Vec<String>, dialog_type: DialogType, font: Font, state: &RefCell<SharedState>) -> GameResult<Dialog> {
-        let dialog = TalkDialog {};
         Ok(Dialog {
-            behaviour: Box::new(dialog),
+            behaviour: Box::new(TalkDialog::new()),
             attrs: DialogAttrs::default(ctx, state)?,
         })
     }

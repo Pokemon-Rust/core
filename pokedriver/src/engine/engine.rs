@@ -55,7 +55,7 @@ impl GameState {
         world.add(Box::new(Actor::from(ctx, &"brendan".to_string(),
                                        &ActorBehaviourType::Player, Point2 { x: 100.0, y: 100.0 })?), 1);
         world.add(Box::new(Tile::from(ctx, &TileType::GreenPatch, Point2 { x: 100.0, y: 100.0 })?), 0);
-        world.add(Box::new(Dialog::new(ctx, vec!["Hi there".to_string()], DialogType::TalkDialog, font, &shared_state)?), 1);
+        world.add(Box::new(Dialog::new(ctx, vec!["Hi there".to_string()], DialogType::TalkDialog, font, &shared_state)?), 2);
 
         let s = GameState {
             dt: std::time::Duration::from_nanos(0),

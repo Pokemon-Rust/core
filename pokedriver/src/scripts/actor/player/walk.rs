@@ -254,11 +254,8 @@ impl ActorBehaviour for WalkBehaviour {
                 }
 
                 self.apply_viewport_transition(state);
-
                 self.apply_sprite_transition(attr, self.direction.clone());
-
                 self.try_handle();
-
                 self.fsync.update();
 
                 if self.key_event.handled {

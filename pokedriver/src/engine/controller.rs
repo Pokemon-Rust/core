@@ -70,7 +70,7 @@ impl Controller {
 
     // Tries to lock the Controller, if lock fails returns false, otherwise true.
     pub fn try_lock(&mut self, component_id: ComponentIdentity) -> bool {
-        if !self.locked {
+        if !self.locked || self.component_id == component_id {
             self.component_id = component_id;
             self.locked = true;
             true
