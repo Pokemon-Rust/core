@@ -19,8 +19,8 @@ pub struct ViewPort {
     pad_y: f32,
     pub width: f32,
     pub height: f32,
-    scale_x: f32,
-    scale_y: f32
+    pub scale_x: f32,
+    pub scale_y: f32
 }
 
 impl ViewPort {
@@ -53,8 +53,8 @@ impl ViewPort {
         let (width, height) = graphics::drawable_size(ctx);
         self.width = width;
         self.height = height;
-        self.scale_x = width / 256.0;
-        self.scale_y = height / 256.0;
+        self.scale_x = 3.0;
+        self.scale_y = 3.0;
         self
     }
 

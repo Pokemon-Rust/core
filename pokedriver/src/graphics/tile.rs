@@ -35,10 +35,9 @@ impl Component for Tile {
     }
 
     fn draw(&mut self, ctx: &mut Context, view_port: &ViewPort) -> GameResult<()> {
-        let (width, height) = graphics::drawable_size(ctx);
         let scale_vec = Vector2 {
-            x: width / 256.0,
-            y: height / 256.0,
+            x: view_port.scale_x,
+            y: view_port.scale_y,
         };
 
         graphics::draw(ctx, &self.tile, DrawParam::new()

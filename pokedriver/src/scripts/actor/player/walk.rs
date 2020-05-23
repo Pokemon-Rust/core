@@ -152,11 +152,12 @@ impl WalkBehaviour {
         }
     }
 
-    fn set_transition(&mut self, attr: &mut ActorAttributes, direction: ActorDirection) {
+    fn set_transition(&mut self, attr: &mut ActorAttributes, direction: ActorDirection, state: &RefCell<SharedState>) {
         // if player is moving in the same direction, we need a viewport transition.
+        let view_port = state.borrow().view_port;
         if attr.direction == direction || self.is_walking {
-            let dx: f32 = 16.0;
-            let dy: f32 = 16.0;
+            let dx: f32 = 8.0 * view_port.scale_x;
+            let dy: f32 = 8.0 * view_port.scale_y;
             self.transition = match direction {
                 ActorDirection::North | ActorDirection::South => dy,
                 ActorDirection::East | ActorDirection::West => dx,
@@ -249,15 +250,13 @@ impl ActorBehaviour for WalkBehaviour {
                 if self.fsync.cycle_completed() {
                     let direction = self.map_to_direction(pressed_key);
                     self.pre_walk();
-                    self.set_transition(attr, direction.clone());
+                    self.set_transition(attr, direction.clone(), state);
+                    println!("Transition ...");
                 }
 
                 self.apply_viewport_transition(state);
-
                 self.apply_sprite_transition(attr, self.direction.clone());
-
                 self.try_handle();
-
                 self.fsync.update();
 
                 if self.key_event.handled {
@@ -279,8 +278,8 @@ impl ActorBehaviour for WalkBehaviour {
 
 
         *location = Point2 {
-            x: cstate.view_port.origin.x + width / 2.0,
-            y: cstate.view_port.origin.y + height / 2.0,
+            x: cstate.view_port.origin.x + width / 2.0 - 8.0 * cstate.view_port.scale_x,
+            y: cstate.view_port.origin.y + height / 2.0 - 18.0 * cstate.view_port.scale_y,
         }
     }
 
