@@ -17,7 +17,8 @@ use crate::utils::resolver;
 pub struct TalkDialog {
     key_event: KeyEvent,
     fsync: FSync,
-    triggered: bool
+    triggered: bool,
+    text_index: usize
 }
 
 enum TalkDialogAction {
@@ -30,7 +31,8 @@ impl TalkDialog {
         TalkDialog {
             fsync: FSync::new().set_frames(resolver::get_fps()),
             key_event: KeyEvent::new(),
-            triggered: true
+            triggered: true,
+            text_index: 0
         }
     }
 
@@ -100,25 +102,46 @@ impl TalkDialog {
         }
     }
 
-    fn handle_action(&self, action: Option<TalkDialogAction>, attrs: &mut DialogAttrs, state: &RefCell<SharedState>) {
+    fn handle_action(&mut self, action: Option<TalkDialogAction>, attrs: &mut DialogAttrs, state: &RefCell<SharedState>) {
         if let Some(dialog_action) = action {
             match dialog_action {
                 TalkDialogAction::Continue => {
-                    if attrs.text_index + 1 == attrs.text.len() {
+                    if self.text_index + 1 == attrs.text.len() {
                         attrs.visible = false;
-                        attrs.text_index = 0;
+                        self.text_index = 0;
                         self.disown(state);
                     } else {
-                        attrs.text_index += 1;
+                        self.text_index += 1;
                     }
                 }
                 TalkDialogAction::Cancel => {
                     attrs.visible = false;
-                    attrs.text_index = 0;
+                    self.text_index = 0;
                     self.disown(state);
                 }
             }
         }
+    }
+
+    fn set_location(&self, attrs: &mut DialogAttrs, state: &RefCell<SharedState>) {
+        let view_port = state.borrow().view_port;
+        let width = view_port.width;
+        let height = view_port.height;
+
+        attrs.mesh_location = Point2 {
+            x: view_port.origin.x,
+            y: view_port.origin.y + height * 0.75,
+        };
+
+        attrs.text_location = Point2 {
+            x: attrs.mesh_location.x + 16.0,
+            y: attrs.mesh_location.y + 16.0,
+        };
+
+        attrs.text_bounds = Point2 {
+            x: attrs.mesh_location.x + width - 16.0,
+            y: attrs.mesh_location.y + height * 0.25 - 16.0,
+        };
     }
 }
 
@@ -135,25 +158,17 @@ impl DialogBehaviour for TalkDialog {
                     self.handle_action(action, attrs, state);
                     self.triggered = false;
 
+                    self.set_location(attrs, state);
                     self.try_handle();
                     self.fsync.update();
+
                 }
             }
+
+            attrs.display_text = attrs.text[self.text_index].clone();
         }
 
         Ok(())
-    }
-
-    fn transform_location(&mut self, state: &RefCell<SharedState>, location: &mut Point2<f32>) {
-        let cstate = state.borrow_mut();
-        let width = cstate.view_port.width;
-        let height = cstate.view_port.height;
-
-
-        *location = Point2 {
-            x: cstate.view_port.origin.x + width / 256.0,
-            y: cstate.view_port.origin.y + height * 0.75,
-        }
     }
 
     fn id(&self) -> ComponentIdentity {

@@ -51,8 +51,7 @@ impl GameState {
         let shared_state = RefCell::new(SharedState::new());
         // create a static viewport
         let view_port = ViewPort::new().init(ctx)
-            .origin(Point2 { x: 0.0, y: 0.0 })
-            .padding(16.0, 16.0);
+            .origin(Point2 { x: 0.0, y: 0.0 });
 
         // Create a vanilla overworld
         let mut world = OverWorld::new();

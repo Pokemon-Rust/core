@@ -18,11 +18,13 @@ pub struct Dialog {
 
 pub struct DialogAttrs {
     pub text: Vec<String>,
+    pub display_text: String,
     pub font: Font,
     pub mesh: Mesh,
-    pub location: Point2<f32>,
+    pub mesh_location: Point2<f32>,
+    pub text_location: Point2<f32>,
+    pub text_bounds: Point2<f32>,
     pub dialog_type: DialogType,
-    pub text_index: usize,
     pub visible: bool,
 }
 
@@ -36,8 +38,11 @@ impl DialogAttrs {
         };
         Ok(
             DialogAttrs {
-                location,
-                text: vec!["Hello there, and welcome to the world of Pokemon! Hello there, and welcome to the world of Pokemon! Hello there, and welcome to the world of Pokemon! Hello there, and welcome to the world of Pokemon! Hello there, and welcome to the world of Pokemon!".to_string(),
+                mesh_location: location,
+                text_location: location,
+                display_text: "".to_string(),
+                text_bounds: location.clone(),
+                text: vec!["Hello there, and welcome to the world of Pokemon!".to_string(),
                            "Your objective is to screw over your rival.".to_string(),
                            "It shouldn't be hard, he's a RETARD.".to_string()],
                 font: graphics::Font::new(ctx, "/fonts/pokemon_fire_red.ttf")?,
@@ -45,7 +50,6 @@ impl DialogAttrs {
                                           Rect::new(0.0, 0.0, width, height * 0.25),
                                           Color::from_rgba(0, 0, 0, 153))?,
                 dialog_type: DialogType::TalkDialog,
-                text_index: 0,
                 visible: true,
             }
         )
@@ -64,27 +68,25 @@ impl Dialog {
 impl Component for Dialog {
     fn update(&mut self, state: &RefCell<SharedState>) -> GameResult<()> {
         self.behaviour.run(&mut self.attrs, state)?;
-        self.behaviour.transform_location(state, &mut self.attrs.location);
         Ok(())
     }
 
     fn draw(&mut self, ctx: &mut Context, view_port: &ViewPort) -> GameResult<()> {
         if self.attrs.visible {
-            let mut text = Text::new((self.attrs.text[self.attrs.text_index].clone(), self.attrs.font, 32.0));
-            text.set_bounds(Point2 {
-                x: self.location().x + view_port.width,
-                y: self.location().y + view_port.height * 0.25
-            }, Align::Left);
+            let mut text = Text::new((self.attrs.display_text.clone(), self.attrs.font, 32.0));
+            text.set_bounds(self.attrs.text_bounds, Align::Left);
+
             graphics::draw(ctx, &self.attrs.mesh, DrawParam::new()
-                .dest(view_port.translate(self.location())))?;
+                .dest(view_port.translate(self.attrs.mesh_location)))?;
+
             graphics::draw(ctx, &text, DrawParam::new()
-                .dest(view_port.translate(self.location())))?
+                .dest(view_port.translate(self.attrs.text_location)))?
         }
         Ok(())
     }
 
     fn location(&self) -> Point2<f32> {
-        self.attrs.location
+        self.attrs.mesh_location
     }
 
     fn id(&self) -> ComponentIdentity {
