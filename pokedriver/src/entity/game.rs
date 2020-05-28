@@ -6,6 +6,9 @@ use amethyst::{
     ecs::Entity,
 };
 
+use crate::entity::actor::player;
+use crate::entity::actor::player::Player;
+
 pub struct GameState {
     camera: Option<Entity>
 }
@@ -24,24 +27,30 @@ impl GameState {
         };
 
         let mut transform = Transform::default();
-        transform.set_translation_xyz(width / 2.0, height / 2.0, 1.0);
+        transform.set_translation_xyz(0.0, height, 10.0);
 
         let mut camera = Camera::standard_3d(width, height);
         camera.set_projection(Projection::orthographic(0.0, width, 0.0, height, 0.0, 20.0));
 
         let camera = world.create_entity()
-            .with(transform)
             .with(camera)
+            .with(transform)
             .build();
 
         self.camera = Some(camera);
+    }
+
+    fn initialize_player(&mut self, world: &mut World) {
+        player::Player::new(world, "boy".to_string(), 2.0);
     }
 }
 
 impl SimpleState for GameState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
-        let StateData { world, .. } = data;
+        let world= data.world;
         self.initialize_camera(world);
+
+        self.initialize_player(world);
     }
 
     fn update(&mut self, _data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {

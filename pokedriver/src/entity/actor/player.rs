@@ -1,47 +1,43 @@
 use amethyst::{
     prelude::*,
-    ecs::{Component, DenseVecStorage},
-    renderer::{Texture, SpriteSheet, ImageFormat},
-    assets::{AssetStorage, Handle, Loader}
+    core::{transform::{Transform, TransformBundle}},
+    ecs::{Entity, Component, DenseVecStorage},
+    renderer::{Texture, SpriteSheet, SpriteRender, ImageFormat, Transparent},
+    assets::{AssetStorage, Handle, Loader},
 };
 
+use crate::utils::resolve;
+
+#[derive(Clone)]
 pub struct Player {
     sprite_index: usize,
     sprite_sheet_handle: Option<Handle<SpriteSheet>>,
-    speed: f32
+    speed: f32,
 }
 
 impl Player {
-    pub fn new(world: &mut World, name: String, speed: f32) -> Self {
-        let base_str = "texture/";
-        let pic_path = base_str + name.as_str() + ".png";
-        let ron_path = base_str + name.as_str() + ".ron";
+    pub fn new(world: &mut World, name: String, speed: f32) -> Entity {
+        let sprite_sheet_handle = resolve::load_spritesheet_handle(world, name);
 
-        let texture_handle = {
-            let loader = world.read_resource::<Loader>();
-            let texture_storage = world.read_resource::<AssetStorage<Texture>>();
-            loader.load(
-                pic_path,
-                ImageFormat::default(),
-                (),
-                &texture_storage,
-            )
+        let player = Player {
+            sprite_index: 0,
+            sprite_sheet_handle: Some(sprite_sheet_handle.clone()),
+            speed,
         };
 
-        let loader = world.read_resource::<Loader>();
-        let sprite_sheet_store = world.read_resource::<AssetStorage<SpriteSheet>>();
-        let sprite_sheet_handle = loader.load(
-            ron_path, // Here we load the associated ron file
-            SpriteSheetFormat(texture_handle), // We pass it the texture we want it to use
-            (),
-            &sprite_sheet_store,
-        );
+        let sprite = SpriteRender {
+            sprite_sheet: sprite_sheet_handle.clone(),
+            sprite_number: 0,
+        };
 
-        Player {
-            sprite_index: 0,
-            sprite_sheet_handle: Some(sprite_sheet_handle),
-            speed
-        }
+        let mut transform = Transform::default();
+        transform.set_translation_xyz(320.0, 240.0, 1.0);
+
+        world.create_entity()
+            .with(sprite)
+            .with(player.clone())
+            .with(transform)
+            .build()
     }
 }
 
