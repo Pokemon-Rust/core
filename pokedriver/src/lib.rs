@@ -1,3 +1,11 @@
+mod entity;
+mod system;
+
+
+
+
+
+
 
 use amethyst::{
     prelude::*,
@@ -9,9 +17,7 @@ use amethyst::{
     utils::application_root_dir,
 };
 
-pub struct GameState;
-
-impl SimpleState for GameState {}
+use crate::entity::game::GameState;
 
 pub fn start() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
@@ -29,13 +35,13 @@ pub fn start() -> amethyst::Result<()> {
             // drawing on it
             .with_plugin(
                 RenderToWindow::from_config_path(display_config_path)?
-                    .with_clear([0.0, 0.0, 0.0, 1.0]),
+                    .with_clear([0.1, 0.2, 0.3, 1.0]),
             )
             // RenderFlat2D plugin is used to render entities with `SpriteRender` component.
             .with_plugin(RenderFlat2D::default()),
     )?;
 
-    let mut game = Application::new(assets_dir, GameState, game_data)?;
+    let mut game = Application::new(assets_dir, GameState::new(), game_data)?;
 
     game.run();
     Ok(())
