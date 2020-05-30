@@ -6,21 +6,16 @@ use amethyst::{
     ecs::Entity,
 };
 
-use crate::entity::actor::player;
 use crate::entity::actor::player::Player;
-use crate::entity::DrawableEntity;
-use std::borrow::BorrowMut;
 
 pub struct GameState {
     camera: Option<Entity>,
-    drawables: Vec<Box<dyn DrawableEntity>>
 }
 
 impl GameState {
     pub fn new() -> Self {
         GameState {
             camera: None,
-            drawables: Vec::new()
         }
     }
 
@@ -45,28 +40,18 @@ impl GameState {
     }
 
     fn initialize_player(&mut self, world: &mut World) {
-        let player = player::Player::new(world, "boy".to_string(), 2.0);
-        self.drawables.push(Box::new(player));
+        Player::new(world, "nate".to_string(), 2.0);
     }
 }
 
 impl SimpleState for GameState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
-        let world= data.world;
+        let world = data.world;
         self.initialize_camera(world);
         self.initialize_player(world);
     }
 
-    fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
-        let world = data.world.borrow_mut();
-
-        for drawable in &mut self.drawables {
-            if let Some(entity) = drawable.entity() {
-                world.delete_entity(entity).expect("Error occured while deletion");
-                drawable.draw(world);
-            }
-        }
-
+    fn update(&mut self, _data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
         Trans::None
     }
 }

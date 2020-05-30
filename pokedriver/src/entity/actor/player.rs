@@ -1,60 +1,71 @@
 use amethyst::{
     prelude::*,
-    core::{transform::{Transform, TransformBundle}},
-    ecs::{Entity, Component, DenseVecStorage},
-    renderer::{Texture, SpriteSheet, SpriteRender, ImageFormat, Transparent},
-    assets::{AssetStorage, Handle, Loader},
+    core::{
+        transform::Transform,
+        math::Vector3,
+    },
+    ecs::{Component, DenseVecStorage},
+    renderer::{SpriteSheet, SpriteRender},
+    assets::Handle,
 };
 
 use crate::utils::resolve;
-use crate::entity::DrawableEntity;
+use crate::entity::actor::ActorAttrs;
+
 
 #[derive(Clone)]
 pub struct Player {
-    sprite_index: usize,
-    sprite_sheet_handle: Handle<SpriteSheet>,
-    speed: f32,
-    entity: Option<Entity>
+    pub attrs: ActorAttrs,
+    pub speed: f32,
+    pub sprite_sheet_handle: Option<Handle<SpriteSheet>>,
 }
 
 impl Player {
     pub fn new(world: &mut World, name: String, speed: f32) -> Player {
-        let sprite_sheet_handle = resolve::load_spritesheet_handle(world, name);
+        let sprite_sheet_handle = resolve::load_spritesheet_handle(world, "players/".to_string() + name.as_str());
         let mut player = Player {
-            sprite_index: 0,
-            sprite_sheet_handle: sprite_sheet_handle.clone(),
+            attrs: ActorAttrs::new(),
             speed,
-            entity: None
+            sprite_sheet_handle: Some(sprite_sheet_handle),
         };
-        player.draw(world);
+
+        player.init(world);
         player
     }
-}
 
-impl DrawableEntity for Player {
-    fn entity(&self) -> Option<Entity> {
-        self.entity
-    }
+    fn init(&mut self, world: &mut World) {
+        if let Some(sprite_sheet_handle) = self.sprite_sheet_handle.clone() {
+            let sprite = SpriteRender {
+                sprite_sheet: sprite_sheet_handle,
+                sprite_number: self.attrs.to_sprite_index(),
+            };
 
-    fn draw(&mut self, world: &mut World) {
-        let sprite = SpriteRender {
-            sprite_sheet: self.sprite_sheet_handle.clone(),
-            sprite_number: self.sprite_index,
-        };
+            println!("init(): {:#?}", self.attrs);
 
-        let mut transform = Transform::default();
-        transform.set_translation_xyz(320.0, 240.0, 1.0);
+            let mut transform = Transform::default();
+            transform.set_translation_xyz(320.0, 240.0, 1.0);
+            transform.set_scale(Vector3::new(2.0, 2.0, 1.0));
 
-        let player = world.create_entity()
-            .with(sprite)
-            .with(self.clone())
-            .with(transform)
-            .build();
-
-        self.entity = Some(player);
+            world.create_entity()
+                .with(sprite)
+                .with(self.clone())
+                .with(transform)
+                .build();
+        }
     }
 }
 
 impl Component for Player {
     type Storage = DenseVecStorage<Self>;
 }
+
+impl Default for Player {
+    fn default() -> Self {
+        Player {
+            attrs: ActorAttrs::new(),
+            sprite_sheet_handle: None,
+            speed: 0.0,
+        }
+    }
+}
+

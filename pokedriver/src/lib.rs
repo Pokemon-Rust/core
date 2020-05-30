@@ -5,9 +5,6 @@ mod utils;
 
 
 
-
-
-
 use amethyst::{
     prelude::*,
     renderer::{
@@ -15,7 +12,7 @@ use amethyst::{
         types::DefaultBackend,
         RenderingBundle,
     },
-    core::{transform::{Transform, TransformBundle}},
+    core::{transform::TransformBundle},
     utils::application_root_dir,
 };
 

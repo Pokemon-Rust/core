@@ -11,7 +11,7 @@ impl<'a, 'b> SystemBundle<'a, 'b> for GameBundle {
     fn build(self, _world: &mut World,
              builder: &mut DispatcherBuilder<'a, 'b>) -> Result<(), Error> {
 
-        builder.add(PlayerSystem, "player_system", &[]);
+        builder.add(PlayerSystem::new(), "player_system", &[]);
         Ok(())
     }
 }

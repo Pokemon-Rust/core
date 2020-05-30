@@ -3,21 +3,43 @@ use amethyst::{
     derive::SystemDesc,
     ecs::prelude::{Join, Read, ReadStorage, System, SystemData, WriteStorage},
     input::{InputHandler, StringBindings},
+    renderer::{SpriteRender},
 };
+
 use crate::entity::actor::player::Player;
+use crate::entity::actor::{ActorAttrs, ActorAction, ActorDirection};
 
 #[derive(SystemDesc)]
-pub struct PlayerSystem;
+pub struct PlayerSystem {
+    counter: usize
+}
+
+impl PlayerSystem {
+    pub fn new() -> Self {
+        PlayerSystem {
+            counter: 0
+        }
+    }
+
+    fn draw(&mut self, player: &Player, sprite_render: &mut SpriteRender) {
+        sprite_render.sprite_number = player.attrs.to_sprite_index();
+    }
+}
 
 impl<'s> System<'s> for PlayerSystem {
     type SystemData = (
-        ReadStorage<'s, Player>,
-        WriteStorage<'s, Transform>,
-        Read<'s, Time>,
-        Read<'s, InputHandler<StringBindings>>,
+        WriteStorage<'s, Player>,
+        WriteStorage<'s, SpriteRender>,
+        ReadStorage<'s, Transform>
     );
 
-    fn run(&mut self, (player, mut transforms, time, input): Self::SystemData) {
-
+    fn run(&mut self, (mut players, mut sprites, _transforms): Self::SystemData) {
+        for (player, sprite) in (&mut players, &mut sprites).join() {
+            player.attrs = ActorAttrs {
+                direction: ActorDirection::North,
+                action: ActorAction::Stand,
+            };
+            self.draw(player, sprite);
+        }
     }
 }

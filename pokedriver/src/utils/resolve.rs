@@ -1,7 +1,6 @@
 use amethyst::{
     prelude::*,
-    ecs::{Entity, Component, DenseVecStorage},
-    renderer::{Texture, SpriteSheet, SpriteRender, ImageFormat, SpriteSheetFormat},
+    renderer::{Texture, SpriteSheet, ImageFormat, SpriteSheetFormat},
     assets::{AssetStorage, Handle, Loader}
 };
 
