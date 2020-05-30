@@ -1,28 +1,34 @@
 use amethyst::{
     core::{timing::Time, transform::Transform},
     derive::SystemDesc,
-    ecs::prelude::{Join, Read, ReadStorage, System, SystemData, WriteStorage},
+    ecs::prelude::{Join, Read, ReadStorage, System, SystemData, Write, WriteStorage},
     input::{InputHandler, StringBindings},
-    renderer::{SpriteRender},
+    renderer::{SpriteRender, camera::Camera},
 };
 
 use crate::entity::actor::player::Player;
 use crate::entity::actor::{ActorAttrs, ActorAction, ActorDirection};
 
+pub trait PlayerBehaviour {
+    fn run(&mut self, player: &mut Player, sprite: &mut SpriteRender, camera: &mut Camera, input: &Read<InputHandler<StringBindings>>);
+    fn draw(&mut self, player: &Player, sprite_render: &mut SpriteRender);
+}
+
+
 #[derive(SystemDesc)]
 pub struct PlayerSystem {
-    counter: usize
+    behaviours: Vec<Box<dyn PlayerBehaviour + Send + Sync>>
 }
 
 impl PlayerSystem {
     pub fn new() -> Self {
         PlayerSystem {
-            counter: 0
+            behaviours: Vec::new()
         }
     }
 
-    fn draw(&mut self, player: &Player, sprite_render: &mut SpriteRender) {
-        sprite_render.sprite_number = player.attrs.to_sprite_index();
+    pub fn add_behaviour(&mut self, behaviour: Box<dyn PlayerBehaviour + Send + Sync>) {
+        self.behaviours.push(behaviour);
     }
 }
 
@@ -30,16 +36,23 @@ impl<'s> System<'s> for PlayerSystem {
     type SystemData = (
         WriteStorage<'s, Player>,
         WriteStorage<'s, SpriteRender>,
-        ReadStorage<'s, Transform>
+        WriteStorage<'s, Transform>,
+        WriteStorage<'s, Camera>,
+        Read<'s, InputHandler<StringBindings>>,
     );
 
-    fn run(&mut self, (mut players, mut sprites, _transforms): Self::SystemData) {
-        for (player, sprite) in (&mut players, &mut sprites).join() {
-            player.attrs = ActorAttrs {
-                direction: ActorDirection::North,
-                action: ActorAction::Stand,
-            };
-            self.draw(player, sprite);
+    fn run(&mut self, (mut players, mut sprites, mut transforms, mut cameras, input): Self::SystemData) {
+        for (cam_transform, camera) in (&mut transforms, &mut cameras).join() {
+            for (player, sprite) in (&mut players, &mut sprites).join() {
+                for behaviour in &mut self.behaviours {
+                    behaviour.run(player, sprite, camera, &input);
+                }
+                // player.attrs = ActorAttrs {
+                //     direction: ActorDirection::North,
+                //     action: ActorAction::Stand,
+                // };
+                // self.draw(player, sprite);
+            }
         }
     }
 }

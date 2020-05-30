@@ -3,20 +3,15 @@ use amethyst::{
     window::ScreenDimensions,
     core::{transform::Transform},
     renderer::camera::{Camera, Projection},
-    ecs::Entity,
 };
 
 use crate::entity::actor::player::Player;
 
-pub struct GameState {
-    camera: Option<Entity>,
-}
+pub struct GameState {}
 
 impl GameState {
     pub fn new() -> Self {
-        GameState {
-            camera: None,
-        }
+        GameState {}
     }
 
     fn initialize_camera(&mut self, world: &mut World) {
@@ -31,12 +26,10 @@ impl GameState {
         let mut camera = Camera::standard_3d(width, height);
         camera.set_projection(Projection::orthographic(0.0, width, 0.0, height, 0.0, 20.0));
 
-        let camera = world.create_entity()
+        world.create_entity()
             .with(camera)
             .with(transform)
             .build();
-
-        self.camera = Some(camera);
     }
 
     fn initialize_player(&mut self, world: &mut World) {
