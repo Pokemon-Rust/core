@@ -1,8 +1,6 @@
 mod actor;
 
 
-
-use crate::system::actor::player::PlayerSystem;
 use amethyst::{
     core::bundle::SystemBundle,
     ecs::prelude::{DispatcherBuilder, World},

@@ -1,14 +1,14 @@
 use amethyst::{
-    core::{timing::Time, transform::Transform},
+    core::transform::Transform,
     derive::SystemDesc,
-    ecs::prelude::{Join, Read, ReadStorage, System, SystemData, Write, WriteStorage},
+    ecs::prelude::Read,
     input::{InputHandler, StringBindings},
     renderer::{SpriteRender, camera::Camera},
 };
 
 use crate::system::actor::player::PlayerBehaviour;
 use crate::entity::actor::player::Player;
-use crate::entity::actor::{ActorAttrs, ActorDirection, ActorAction};
+use crate::entity::actor::{ActorDirection, ActorAction};
 use crate::utils::resolve::get_fps;
 
 
@@ -201,7 +201,7 @@ impl Walk {
 }
 
 impl PlayerBehaviour for Walk {
-    fn run(&mut self, player: &mut Player, camera: &mut Camera, input: &Read<InputHandler<StringBindings>>) -> bool {
+    fn run(&mut self, player: &mut Player, _camera: &mut Camera, input: &Read<InputHandler<StringBindings>>) -> bool {
         self.evaluate(player, input);
 
         if self.key_event.is_some() {

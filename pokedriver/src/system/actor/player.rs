@@ -1,13 +1,12 @@
 use amethyst::{
-    core::{timing::Time, transform::Transform},
+    core::transform::Transform,
     derive::SystemDesc,
-    ecs::prelude::{Join, Read, ReadStorage, System, SystemData, Write, WriteStorage},
+    ecs::prelude::{Join, Read, System, SystemData, WriteStorage},
     input::{InputHandler, StringBindings},
     renderer::{SpriteRender, camera::Camera},
 };
 
 use crate::entity::actor::player::Player;
-use crate::entity::actor::{ActorAttrs, ActorAction, ActorDirection};
 
 // The run() function returns a boolean value stating whether the behaviour corresponded to the input.
 pub trait PlayerBehaviour {
@@ -46,7 +45,7 @@ impl<'s> System<'s> for PlayerSystem {
     );
 
     fn run(&mut self, (mut players, mut sprites, mut transforms, mut cameras, input): Self::SystemData) {
-        for (cam_transform, camera) in (&mut transforms, &mut cameras).join() {
+        for (_cam_transform, camera) in (&mut transforms, &mut cameras).join() {
             for (player, sprite) in (&mut players, &mut sprites).join() {
                 for behaviour in &mut self.behaviours {
 

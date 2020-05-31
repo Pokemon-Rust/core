@@ -6,6 +6,7 @@ use amethyst::{
 };
 
 use crate::entity::actor::player::Player;
+use crate::utils::debug;
 
 pub struct GameState {}
 
@@ -40,8 +41,11 @@ impl GameState {
 impl SimpleState for GameState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
+
         self.initialize_camera(world);
         self.initialize_player(world);
+
+        debug::display_dbg(world);
     }
 
     fn update(&mut self, _data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {

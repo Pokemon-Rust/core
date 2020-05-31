@@ -2,6 +2,7 @@ use amethyst::{
     prelude::*,
     renderer::{Texture, SpriteSheet, ImageFormat, SpriteSheetFormat},
     assets::{AssetStorage, Handle, Loader},
+    ui::{TtfFormat, FontAsset},
 };
 
 
@@ -29,6 +30,14 @@ pub fn load_spritesheet_handle(world: &mut World, name: String) -> Handle<Sprite
         (),
         &sprite_sheet_store,
     )
+}
+
+pub fn load_font_handle(world: &mut World) -> Handle<FontAsset> {
+    let font_storage = world.read_resource::<AssetStorage<FontAsset>>();
+    world.read_resource::<Loader>().load("font/pokemon_fire_red.ttf",
+                                         TtfFormat,
+                                         (),
+                                         &font_storage)
 }
 
 pub fn get_fps() -> usize {
