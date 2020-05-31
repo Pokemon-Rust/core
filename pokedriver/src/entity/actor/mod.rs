@@ -5,7 +5,8 @@ pub enum ActorDirection {
     North,
     South,
     East,
-    West
+    West,
+    None
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
@@ -37,7 +38,8 @@ impl ActorAttrs {
                 ActorDirection::North => 0,
                 ActorDirection::South => 3,
                 ActorDirection::East => 6,
-                ActorDirection::West => 9
+                ActorDirection::West => 9,
+                _ => 0
             };
             match self.action {
                 ActorAction::Stand => index,

@@ -13,6 +13,7 @@ use amethyst::{
         RenderingBundle,
     },
     core::{transform::TransformBundle},
+    input::{InputBundle, StringBindings},
     utils::application_root_dir,
 };
 
@@ -26,9 +27,12 @@ pub fn start() -> amethyst::Result<()> {
     let display_config_path = app_root.join("../pokedriver/config/display.ron");
 
     let assets_dir = app_root.join("../pokedriver/assets");
+    let input_binding_config = app_root.join("../pokedriver/config/input.ron");
 
     let game_data = GameDataBuilder::default()
         .with_bundle(TransformBundle::new())?
+        .with_bundle(InputBundle::<StringBindings>::new()
+            .with_bindings_from_file(input_binding_config)?)?
         .with_bundle(GameBundle)?
         .with_bundle(
         RenderingBundle::<DefaultBackend>::new()

@@ -33,7 +33,7 @@ impl GameState {
     }
 
     fn initialize_player(&mut self, world: &mut World) {
-        Player::new(world, "nate".to_string(), 2.0);
+        Player::new(world, "nate".to_string());
     }
 }
 

@@ -1,7 +1,7 @@
 use amethyst::{
     prelude::*,
     renderer::{Texture, SpriteSheet, ImageFormat, SpriteSheetFormat},
-    assets::{AssetStorage, Handle, Loader}
+    assets::{AssetStorage, Handle, Loader},
 };
 
 
@@ -29,4 +29,8 @@ pub fn load_spritesheet_handle(world: &mut World, name: String) -> Handle<Sprite
         (),
         &sprite_sheet_store,
     )
+}
+
+pub fn get_fps() -> usize {
+    60
 }

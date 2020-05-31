@@ -15,7 +15,7 @@ impl<'a, 'b> SystemBundle<'a, 'b> for PlayerBundle {
         let mut system = PlayerSystem::new();
         system.add_behaviour(Walk::new());
 
-        dispatcher.add(system, "player_system", &[]);
+        dispatcher.add(system, "player_system", &["input_system"]);
         Ok(())
     }
 }

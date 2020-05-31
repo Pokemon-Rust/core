@@ -16,16 +16,14 @@ use crate::entity::actor::ActorAttrs;
 #[derive(Clone)]
 pub struct Player {
     pub attrs: ActorAttrs,
-    pub speed: f32,
     pub sprite_sheet_handle: Option<Handle<SpriteSheet>>,
 }
 
 impl Player {
-    pub fn new(world: &mut World, name: String, speed: f32) -> Player {
+    pub fn new(world: &mut World, name: String) -> Player {
         let sprite_sheet_handle = resolve::load_spritesheet_handle(world, "players/".to_string() + name.as_str());
         let mut player = Player {
             attrs: ActorAttrs::new(),
-            speed,
             sprite_sheet_handle: Some(sprite_sheet_handle),
         };
 
@@ -62,7 +60,6 @@ impl Default for Player {
         Player {
             attrs: ActorAttrs::new(),
             sprite_sheet_handle: None,
-            speed: 0.0,
         }
     }
 }

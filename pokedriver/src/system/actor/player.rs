@@ -9,9 +9,9 @@ use amethyst::{
 use crate::entity::actor::player::Player;
 use crate::entity::actor::{ActorAttrs, ActorAction, ActorDirection};
 
+// The run() function returns a boolean value stating whether the behaviour corresponded to the input.
 pub trait PlayerBehaviour {
-    fn run(&mut self, player: &mut Player, sprite: &mut SpriteRender, camera: &mut Camera, input: &Read<InputHandler<StringBindings>>);
-    fn draw(&mut self, player: &Player, sprite_render: &mut SpriteRender);
+    fn run(&mut self, player: &mut Player, camera: &mut Camera, input: &Read<InputHandler<StringBindings>>) -> bool;
 }
 
 
@@ -30,6 +30,10 @@ impl PlayerSystem {
     pub fn add_behaviour(&mut self, behaviour: Box<dyn PlayerBehaviour + Send + Sync>) {
         self.behaviours.push(behaviour);
     }
+
+    fn draw(&mut self, player: &Player, sprite_render: &mut SpriteRender) {
+        sprite_render.sprite_number = player.attrs.to_sprite_index();
+    }
 }
 
 impl<'s> System<'s> for PlayerSystem {
@@ -45,14 +49,17 @@ impl<'s> System<'s> for PlayerSystem {
         for (cam_transform, camera) in (&mut transforms, &mut cameras).join() {
             for (player, sprite) in (&mut players, &mut sprites).join() {
                 for behaviour in &mut self.behaviours {
-                    behaviour.run(player, sprite, camera, &input);
+
+                    // If the input was handled by a behaviour, skip all other behaviours.
+                    // Only one behaviour is allowed to run at a time.
+                    if behaviour.run(player, camera, &input) {
+                        break;
+                    }
                 }
-                // player.attrs = ActorAttrs {
-                //     direction: ActorDirection::North,
-                //     action: ActorAction::Stand,
-                // };
-                // self.draw(player, sprite);
+
+                self.draw(player, sprite);
             }
         }
+
     }
 }
