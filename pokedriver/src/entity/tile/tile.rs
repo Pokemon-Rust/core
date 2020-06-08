@@ -9,7 +9,7 @@ use amethyst::{
     assets::Handle,
 };
 
-use crate::entity::tile::{TileAttrs, TileClass};
+use crate::entity::tile::{TileAttrs};
 use crate::utils::resolve;
 
 #[derive(Clone)]

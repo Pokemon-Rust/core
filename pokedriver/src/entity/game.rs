@@ -7,7 +7,7 @@ use amethyst::{
 
 use crate::entity::actor::player::Player;
 use crate::utils::debug;
-use crate::entity::tile::{tile::Tile, TileClass};
+use crate::entity::tile::{tile::Tile};
 
 pub struct GameState {}
 

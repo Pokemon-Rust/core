@@ -22,7 +22,7 @@ impl<'a, 'b> SystemBundle<'a, 'b> for GameBundle {
         actor_bundle.build(world, dispatcher)?;
 
         let tile_bundle = TileBundle;
-        tile_bundle.build(world, dispatcher);
+        tile_bundle.build(world, dispatcher)?;
 
 
         Ok(())

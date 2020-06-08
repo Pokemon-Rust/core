@@ -1,16 +1,13 @@
 use amethyst::{
     core::transform::Transform,
-    derive::SystemDesc,
     ecs::prelude::Read,
     input::{InputHandler, StringBindings},
-    renderer::{SpriteRender, camera::Camera},
 };
 
-use crate::system::actor::player::PlayerBehaviour;
+use crate::entity::actor::{ActorAction, ActorDirection};
 use crate::entity::actor::player::Player;
-use crate::entity::actor::{ActorDirection, ActorAction};
+use crate::system::actor::player::PlayerBehaviour;
 use crate::utils::resolve::get_fps;
-
 
 #[derive(Eq, PartialEq)]
 enum SpriteTransitionType {
@@ -24,7 +21,7 @@ enum WalkKey {
     Up,
     Down,
     Left,
-    Right
+    Right,
 }
 
 type Event = Option<WalkKey>;
@@ -40,7 +37,7 @@ pub struct Walk {
     speed: f32,
     transition: f32,
     transition_slice: f32,
-    capframes: f32
+    capframes: f32,
 }
 
 impl Walk {
@@ -56,7 +53,7 @@ impl Walk {
             speed: 3.0,
             transition: 0.0,
             transition_slice: 0.0,
-            capframes: 0.0
+            capframes: 0.0,
         };
 
         walk.init();
@@ -79,10 +76,10 @@ impl Walk {
             }
 
             match self.direction {
-                ActorDirection::North => { transform.prepend_translation_y(slice); },
-                ActorDirection::South => { transform.prepend_translation_y(-slice); },
-                ActorDirection::East => { transform.prepend_translation_x(slice); },
-                ActorDirection::West => { transform.prepend_translation_x(-slice); },
+                ActorDirection::North => { transform.prepend_translation_y(slice); }
+                ActorDirection::South => { transform.prepend_translation_y(-slice); }
+                ActorDirection::East => { transform.prepend_translation_x(slice); }
+                ActorDirection::West => { transform.prepend_translation_x(-slice); }
                 _ => {}
             };
             self.transition -= slice;
@@ -153,7 +150,7 @@ impl Walk {
 
             if self.counter < f1_slice as usize {
                 player.attrs.action = self.action_state.clone();
-            } else if self.counter < f2_slice as usize{
+            } else if self.counter < f2_slice as usize {
                 player.attrs.action = ActorAction::Stand;
             }
 
@@ -234,7 +231,6 @@ impl Walk {
             }
         }
     }
-
 }
 
 impl PlayerBehaviour for Walk {

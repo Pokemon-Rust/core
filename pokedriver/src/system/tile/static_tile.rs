@@ -1,9 +1,7 @@
 use amethyst::{
-    core::transform::Transform,
     derive::SystemDesc,
-    ecs::prelude::{Join, Read, System, SystemData, WriteStorage},
-    input::{InputHandler, StringBindings},
-    renderer::{SpriteRender, camera::Camera},
+    ecs::prelude::{System, SystemData, WriteStorage},
+    renderer::{SpriteRender},
 };
 use crate::entity::tile::tile::Tile;
 
@@ -21,9 +19,9 @@ impl StaticTileSystem {
 }
 
 impl<'s> System<'s> for StaticTileSystem {
-    type SystemData = (WriteStorage<'s, Tile>);
+    type SystemData = WriteStorage<'s, Tile>;
 
-    fn run(&mut self, data: Self::SystemData) {
+    fn run(&mut self, _data: Self::SystemData) {
 
     }
 }
