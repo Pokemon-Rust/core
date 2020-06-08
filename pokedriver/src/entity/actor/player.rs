@@ -39,7 +39,7 @@ impl Player {
             };
 
             let mut transform = Transform::default();
-            transform.set_translation_xyz(320.0, 320.0, 1.0);
+            transform.set_translation_xyz(320.0, 320.0, 2.0);
             transform.set_scale(Vector3::new(2.0, 2.0, 1.0));
 
             world.create_entity()

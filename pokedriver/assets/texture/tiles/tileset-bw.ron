@@ -1,0 +1,18 @@
+/*!
+    @import /amethyst_rendy/src/sprite/mod.rs#Sprites
+    Sprites
+*/
+
+List((
+    texture_width: 1376,
+    texture_height: 1136,
+    sprites: [
+        (
+            // GreenPatch
+            x: 96,
+            y: 32,
+            width: 16,
+            height: 16,
+        ),
+    ],
+))

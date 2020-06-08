@@ -5,6 +5,7 @@ use amethyst::{
     ui::{TtfFormat, FontAsset},
 };
 
+use crate::entity::tile::TileClass;
 
 pub fn load_spritesheet_handle(world: &mut World, name: String) -> Handle<SpriteSheet> {
     let base_str = "texture/";

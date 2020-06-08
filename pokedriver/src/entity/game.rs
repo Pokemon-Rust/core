@@ -7,6 +7,7 @@ use amethyst::{
 
 use crate::entity::actor::player::Player;
 use crate::utils::debug;
+use crate::entity::tile::{tile::Tile, TileClass};
 
 pub struct GameState {}
 
@@ -36,6 +37,10 @@ impl GameState {
     fn initialize_player(&mut self, world: &mut World) {
         Player::new(world, "nate".to_string());
     }
+
+    fn initialize_sample_tile(&mut self, world: &mut World) {
+        Tile::new(world, TileClass::GreenPatch);
+    }
 }
 
 impl SimpleState for GameState {
@@ -44,6 +49,7 @@ impl SimpleState for GameState {
 
         self.initialize_camera(world);
         self.initialize_player(world);
+        self.initialize_sample_tile(world);
 
         debug::display_dbg(world);
     }
