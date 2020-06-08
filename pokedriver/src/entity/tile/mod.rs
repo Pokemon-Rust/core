@@ -15,14 +15,14 @@ impl fmt::Display for TileClass {
 
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub struct TileAttrs {
-    class: TileClass,
-    state: usize
+    class: Option<TileClass>,
+    state: usize,
 }
 
 impl TileAttrs {
     pub fn to_sprite_index(&self) -> usize {
-        if let Some(class) = self.class {
-            let class_index = match class {
+        if self.class.is_some() {
+            let class_index = match self.class.unwrap() {
                 TileClass::GreenPatch => 0
             };
             class_index + self.state

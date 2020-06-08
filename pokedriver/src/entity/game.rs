@@ -39,7 +39,7 @@ impl GameState {
     }
 
     fn initialize_sample_tile(&mut self, world: &mut World) {
-        Tile::new(world, TileClass::GreenPatch);
+        Tile::new(world, "tileset-bw".to_string());
     }
 }
 

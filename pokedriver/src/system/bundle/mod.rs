@@ -1,4 +1,5 @@
 mod actor;
+mod tile;
 
 
 use amethyst::{
@@ -9,6 +10,7 @@ use amethyst::{
 
 
 use crate::system::bundle::actor::ActorBundle;
+use crate::system::bundle::tile::TileBundle;
 
 pub struct GameBundle;
 
@@ -18,6 +20,10 @@ impl<'a, 'b> SystemBundle<'a, 'b> for GameBundle {
 
         let actor_bundle = ActorBundle;
         actor_bundle.build(world, dispatcher)?;
+
+        let tile_bundle = TileBundle;
+        tile_bundle.build(world, dispatcher);
+
 
         Ok(())
     }

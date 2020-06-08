@@ -12,20 +12,20 @@ use amethyst::{
 use crate::entity::tile::{TileAttrs, TileClass};
 use crate::utils::resolve;
 
-
+#[derive(Clone)]
 pub struct Tile {
-    attrs: TileAttrs,
-    sheet: Handle<SpriteSheet>,
+    pub attrs: TileAttrs,
+    pub sheet: Handle<SpriteSheet>,
 }
 
 impl Tile {
-    pub fn new(world: &mut World, class: TileClass) -> Self {
-        let class_str = "tiles/".to_string() + class.to_string().as_str();
-        let sheet = resolve::load_spritesheet_handle(world, class_str);
+    pub fn new(world: &mut World, tileset: String) -> Self {
+        let tileset_str = "tiles/".to_string() + tileset.to_string().as_str();
+        let sheet = resolve::load_spritesheet_handle(world, tileset_str);
         let mut tile = Tile {
             sheet,
             attrs: TileAttrs {
-                class,
+                class: None,
                 state: 0,
             },
         };
