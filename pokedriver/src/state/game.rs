@@ -9,6 +9,8 @@ use crate::entity::actor::player::Player;
 use crate::utils::debug;
 use crate::entity::tile::{tile::Tile};
 
+use crate::state::dialog::DialogState;
+
 pub struct GameState {}
 
 impl GameState {

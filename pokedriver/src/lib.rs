@@ -1,7 +1,7 @@
 mod entity;
+mod state;
 mod system;
 mod utils;
-
 
 
 
@@ -18,7 +18,7 @@ use amethyst::{
     utils::application_root_dir,
 };
 
-use crate::entity::game::GameState;
+use crate::state::game::GameState;
 use crate::system::bundle::GameBundle;
 use std::time::Duration;
 use crate::utils::resolve;
