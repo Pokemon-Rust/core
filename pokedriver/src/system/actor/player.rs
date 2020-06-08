@@ -4,13 +4,13 @@ use amethyst::{
     ecs::prelude::{Join, Read, System, SystemData, WriteStorage},
     input::{InputHandler, StringBindings},
     renderer::{SpriteRender, camera::Camera},
+    core::math::Vector3
 };
-
 use crate::entity::actor::player::Player;
 
 // The run() function returns a boolean value stating whether the behaviour corresponded to the input.
 pub trait PlayerBehaviour {
-    fn run(&mut self, player: &mut Player, camera: &mut Camera, input: &Read<InputHandler<StringBindings>>) -> bool;
+    fn run(&mut self, player: &mut Player, transform: &mut Transform, input: &Read<InputHandler<StringBindings>>) -> bool;
 }
 
 
@@ -45,13 +45,16 @@ impl<'s> System<'s> for PlayerSystem {
     );
 
     fn run(&mut self, (mut players, mut sprites, mut transforms, mut cameras, input): Self::SystemData) {
-        for (_cam_transform, camera) in (&mut transforms, &mut cameras).join() {
+        let mut translation: Vector3<f32> = Vector3::new(0.0, 0.0, 2.0);
+
+        for (transform, camera) in (&mut transforms, &mut cameras).join() {
+            translation = transform.translation().clone();
             for (player, sprite) in (&mut players, &mut sprites).join() {
                 for behaviour in &mut self.behaviours {
 
                     // If the input was handled by a behaviour, skip all other behaviours.
                     // Only one behaviour is allowed to run at a time.
-                    if behaviour.run(player, camera, &input) {
+                    if behaviour.run(player, transform, &input) {
                         break;
                     }
                 }
@@ -60,5 +63,9 @@ impl<'s> System<'s> for PlayerSystem {
             }
         }
 
+        for (_player, player_transform) in (&mut players, &mut transforms).join() {
+            player_transform.set_translation_x(translation[0] + 320.0);
+            player_transform.set_translation_y(translation[1] - 320.0);
+        }
     }
 }

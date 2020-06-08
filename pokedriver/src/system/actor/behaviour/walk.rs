@@ -38,6 +38,8 @@ pub struct Walk {
     key_event: Event,
     active: bool,
     speed: f32,
+    transition: f32,
+    transition_slice: f32,
     capframes: f32
 }
 
@@ -52,6 +54,8 @@ impl Walk {
             key_event: None,
             active: false,
             speed: 3.0,
+            transition: 0.0,
+            transition_slice: 0.0,
             capframes: 0.0
         };
 
@@ -65,6 +69,26 @@ impl Walk {
 
     fn cycle_completed(&self) -> bool {
         self.counter == 0
+    }
+
+    fn apply_camera_transition(&mut self, transform: &mut Transform) {
+        let mut slice = self.transition_slice;
+        if self.transition > 0.0 {
+            if self.transition < slice {
+                slice = self.transition;
+            }
+
+            match self.direction {
+                ActorDirection::North => { transform.prepend_translation_y(slice); },
+                ActorDirection::South => { transform.prepend_translation_y(-slice); },
+                ActorDirection::East => { transform.prepend_translation_x(slice); },
+                ActorDirection::West => { transform.prepend_translation_x(-slice); },
+                _ => {}
+            };
+            self.transition -= slice;
+        } else {
+            self.transition = 0.0;
+        }
     }
 
     fn handle(&mut self) {
@@ -92,9 +116,22 @@ impl Walk {
 
     fn set_transition(&mut self, player: &mut Player, direction: ActorDirection) {
         if player.attrs.direction == direction || self.active {
+            let dx: f32 = 32.0;
+            let dy: f32 = 32.0;
+
+            self.transition = match direction {
+                ActorDirection::North | ActorDirection::South => dy,
+                ActorDirection::East | ActorDirection::West => dx,
+                _ => 0.0
+            };
+
+            self.transition_slice = self.transition / self.capframes;
+
             self.sprite_transition = SpriteTransitionType::Walk;
             player.attrs.direction = direction.clone();
         } else {
+            self.transition = 0.0;
+            self.transition_slice = 0.0;
             self.sprite_transition = SpriteTransitionType::Turn;
         }
 
@@ -174,7 +211,7 @@ impl Walk {
 
     fn evaluate(&mut self, player: &mut Player, input: &Read<InputHandler<StringBindings>>) {
         // wait for any pending key_events and then validate current key_event.
-        if self.key_event.is_none() {
+        if self.key_event.is_none() && self.get_event(input).is_some() {
             // register a new key_event.
             self.key_event = self.get_event(input);
             if self.key_event.is_some() {
@@ -201,7 +238,7 @@ impl Walk {
 }
 
 impl PlayerBehaviour for Walk {
-    fn run(&mut self, player: &mut Player, _camera: &mut Camera, input: &Read<InputHandler<StringBindings>>) -> bool {
+    fn run(&mut self, player: &mut Player, transform: &mut Transform, input: &Read<InputHandler<StringBindings>>) -> bool {
         self.evaluate(player, input);
 
         if self.key_event.is_some() {
@@ -212,9 +249,12 @@ impl PlayerBehaviour for Walk {
             }
 
             self.apply_sprite_transition(player, self.direction.clone());
+            self.apply_camera_transition(transform);
+
             self.counter += 1;
 
             if self.key_event.is_none() || self.counter == get_fps() - 1 {
+                self.handle();
                 self.counter = 0;
             }
 
