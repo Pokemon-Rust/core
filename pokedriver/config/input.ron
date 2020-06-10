@@ -12,5 +12,7 @@
         "right": [[Key(Right)]],
         "up": [[Key(Up)]],
         "down": [[Key(Down)]],
+        "continue": [[Key(Z)]],
+        "cancel": [[Key(X)]]
     },
 )

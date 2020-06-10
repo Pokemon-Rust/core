@@ -2,6 +2,7 @@ use amethyst::{
     prelude::*,
     ui::{UiText, UiTransform, Anchor},
 };
+
 use crate::utils::resolve;
 
 pub fn display_dbg(world: &mut World) {
@@ -17,13 +18,16 @@ pub fn display_dbg(world: &mut World) {
         30.,
     );
 
+    let text = UiText::new(
+        font.clone(),
+        "Development".to_string(),
+        [1.0, 1.0, 1.0, 1.0],
+        30.,
+    );
+
+
     world.create_entity()
         .with(transform)
-        .with(UiText::new(
-            font.clone(),
-            "Development".to_string(),
-            [1.0, 1.0, 1.0, 1.0],
-            30.,
-        ))
+        .with(text)
         .build();
 }

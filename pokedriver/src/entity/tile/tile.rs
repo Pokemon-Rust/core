@@ -19,7 +19,7 @@ pub struct Tile {
 }
 
 impl Tile {
-    pub fn new(world: &mut World, tileset: String) -> Self {
+    pub fn create(world: &mut World, tileset: String) {
         let tileset_str = "tiles/".to_string() + tileset.to_string().as_str();
         let sheet = resolve::load_spritesheet_handle(world, tileset_str);
         let mut tile = Tile {
@@ -31,7 +31,6 @@ impl Tile {
         };
 
         tile.init(world);
-        tile
     }
 
     fn init(&mut self, world: &mut World) {

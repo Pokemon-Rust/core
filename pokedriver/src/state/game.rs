@@ -37,11 +37,11 @@ impl GameState {
     }
 
     fn initialize_player(&mut self, world: &mut World) {
-        Player::new(world, "nate".to_string());
+        Player::create(world, "nate".to_string());
     }
 
     fn initialize_sample_tile(&mut self, world: &mut World) {
-        Tile::new(world, "tileset-bw".to_string());
+        Tile::create(world, "tileset-bw".to_string());
     }
 }
 
@@ -57,6 +57,6 @@ impl SimpleState for GameState {
     }
 
     fn update(&mut self, _data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
-        Trans::None
+        Trans::Push(Box::new(DialogState::new()))
     }
 }

@@ -5,10 +5,10 @@ use amethyst::{
     ui::{TtfFormat, FontAsset},
 };
 
-pub fn load_spritesheet_handle(world: &mut World, name: String) -> Handle<SpriteSheet> {
+
+pub fn load_texture_handle(world: &mut World, name: String) -> Handle<Texture> {
     let base_str = "texture/";
     let pic_path = base_str.to_string() + name.as_ref() + ".png".to_string().as_ref();
-    let ron_path = base_str.to_string() + name.as_ref() + ".ron";
 
     let texture_handle = {
         let loader = world.read_resource::<Loader>();
@@ -21,6 +21,15 @@ pub fn load_spritesheet_handle(world: &mut World, name: String) -> Handle<Sprite
         )
     };
 
+    texture_handle
+}
+
+pub fn load_spritesheet_handle(world: &mut World, name: String) -> Handle<SpriteSheet> {
+    let base_str = "texture/";
+    let ron_path = base_str.to_string() + name.as_ref() + ".ron";
+
+    let texture_handle = load_texture_handle(world, name);
+
     let loader = world.read_resource::<Loader>();
     let sprite_sheet_store = world.read_resource::<AssetStorage<SpriteSheet>>();
     loader.load(
@@ -30,6 +39,7 @@ pub fn load_spritesheet_handle(world: &mut World, name: String) -> Handle<Sprite
         &sprite_sheet_store,
     )
 }
+
 
 pub fn load_font_handle(world: &mut World) -> Handle<FontAsset> {
     let font_storage = world.read_resource::<AssetStorage<FontAsset>>();

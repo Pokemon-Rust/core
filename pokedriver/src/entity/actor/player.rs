@@ -20,7 +20,7 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(world: &mut World, name: String) -> Player {
+    pub fn create(world: &mut World, name: String) {
         let sprite_sheet_handle = resolve::load_spritesheet_handle(world, "players/".to_string() + name.as_str());
         let mut player = Player {
             attrs: ActorAttrs::new(),
@@ -28,7 +28,6 @@ impl Player {
         };
 
         player.init(world);
-        player
     }
 
     fn init(&mut self, world: &mut World) {
