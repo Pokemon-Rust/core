@@ -1,12 +1,13 @@
 use amethyst::{
     core::transform::Transform,
     derive::SystemDesc,
-    ecs::prelude::{Join, Read, System, SystemData, WriteStorage},
+    ecs::prelude::{Join, Read, System, SystemData, Write, WriteStorage},
     input::{InputHandler, StringBindings},
     renderer::{SpriteRender, camera::Camera},
     core::math::Vector3
 };
 use crate::entity::actor::player::Player;
+use crate::state::Game;
 
 // The run() function returns a boolean value stating whether the behaviour corresponded to the input.
 pub trait PlayerBehaviour {
@@ -42,9 +43,10 @@ impl<'s> System<'s> for PlayerSystem {
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Camera>,
         Read<'s, InputHandler<StringBindings>>,
+        Write<'s, Game>
     );
 
-    fn run(&mut self, (mut players, mut sprites, mut transforms, mut cameras, input): Self::SystemData) {
+    fn run(&mut self, (mut players, mut sprites, mut transforms, mut cameras, input, mut game): Self::SystemData) {
         let mut translation: Vector3<f32> = Vector3::new(0.0, 0.0, 2.0);
 
         for (transform, _camera) in (&mut transforms, &mut cameras).join() {

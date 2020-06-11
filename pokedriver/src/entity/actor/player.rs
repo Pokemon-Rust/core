@@ -2,7 +2,7 @@ use amethyst::{
     prelude::*,
     core::{
         transform::Transform,
-        math::Vector3,
+        math::{Vector2, Vector3},
     },
     ecs::{Component, DenseVecStorage},
     renderer::{SpriteSheet, SpriteRender},
@@ -17,6 +17,7 @@ use crate::entity::actor::ActorAttrs;
 pub struct Player {
     pub attrs: ActorAttrs,
     pub sprite_sheet_handle: Option<Handle<SpriteSheet>>,
+    pub grid_pos: Vector2<i32>
 }
 
 impl Player {
@@ -25,6 +26,7 @@ impl Player {
         let mut player = Player {
             attrs: ActorAttrs::new(),
             sprite_sheet_handle: Some(sprite_sheet_handle),
+            grid_pos: Vector2::new(0, 0)
         };
 
         player.init(world);
@@ -59,6 +61,7 @@ impl Default for Player {
         Player {
             attrs: ActorAttrs::new(),
             sprite_sheet_handle: None,
+            grid_pos: Vector2::new(0, 0)
         }
     }
 }

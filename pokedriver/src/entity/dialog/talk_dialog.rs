@@ -4,7 +4,7 @@ use amethyst::{
         transform::Transform,
         math::Vector3,
     },
-    ecs::{Component, DenseVecStorage},
+    ecs::{Component, DenseVecStorage, Entity},
     ui::{UiTransform, UiImage, UiText, Anchor, LineMode},
     assets::Handle,
 };
@@ -14,12 +14,18 @@ use crate::utils::resolve;
 #[derive(Clone)]
 pub struct TalkDialog {
     pub text: Vec<String>,
+    pub index: usize,
+    pub char_index: usize,
+    pub mesh: Option<Entity>
 }
 
 impl TalkDialog {
     pub fn create(world: &mut World) {
         let mut dialog = TalkDialog {
             text: Vec::new(),
+            index: 0,
+            char_index: 0,
+            mesh: None,
         };
 
         dialog.text.push("Hello, I'm Professor Oak.\n\nWelcome to the world of Pokemon!".to_string());
@@ -41,8 +47,9 @@ impl TalkDialog {
         text.line_mode = LineMode::Wrap;
         text.align = Anchor::TopLeft;
 
-
         let texture_handle = resolve::load_texture_handle(world, "dialogs/dialog_bottom".to_string());
+
+        println!("texture_handle.id(): {}", texture_handle.id());
 
         let image = UiImage::Texture(texture_handle);
 
@@ -52,7 +59,7 @@ impl TalkDialog {
             Anchor::MiddleLeft,
             0.,
             80.,
-            1.,
+            3.,
             640.,
             160.
         );
@@ -63,22 +70,21 @@ impl TalkDialog {
             Anchor::MiddleLeft,
             24.,
             64.,
-            2.,
+            4.,
             592.,
             144.
         );
 
-        world.create_entity()
+        self.mesh = Some(world.create_entity()
             .with(transform)
             .with(image)
-            .build();
+            .build());
 
         world.create_entity()
-            .with(self.clone())
-            .with(text_transform)
             .with(text)
+            .with(text_transform)
+            .with(self.clone())
             .build();
-
     }
 }
 

@@ -57,6 +57,7 @@ impl SimpleState for GameState {
     }
 
     fn update(&mut self, _data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
+        println!("GameState: update()");
         Trans::Push(Box::new(DialogState::new()))
     }
 }

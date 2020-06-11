@@ -26,7 +26,7 @@ impl<'a, 'b> SystemBundle<'a, 'b> for GameBundle {
         tile_bundle.build(world, dispatcher)?;
 
         let dialog_bundle = DialogBundle;
-        dialog_bundle.build(world, dispatcher);
+        dialog_bundle.build(world, dispatcher)?;
 
 
         Ok(())

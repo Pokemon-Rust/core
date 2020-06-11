@@ -1,34 +1,31 @@
 use amethyst::{
     core::transform::Transform,
     derive::SystemDesc,
-    ecs::prelude::{Join, Read, System, SystemData, WriteStorage},
+    ecs::prelude::{Join, Read, Write, System, SystemData, WriteStorage, Entities},
     input::{InputHandler, StringBindings},
     renderer::{SpriteRender, camera::Camera},
     core::math::Vector3,
-    ui::UiText,
+    ui::{UiText, UiImage},
 };
 use crate::entity::dialog::talk_dialog::TalkDialog;
 use crate::utils::resolve;
+use crate::state::{Game, Trigger};
 
 #[derive(SystemDesc)]
 pub struct TalkDialogSystem {
-    index: usize,
-    char_index: usize,
     counter: usize,
     speed: f32,
     capframes: f32,
-    hold: bool
+    hold: bool,
 }
 
 impl TalkDialogSystem {
     pub fn new() -> Self {
         let mut system = TalkDialogSystem {
-            index: 0,
-            char_index: 0,
             counter: 0,
             speed: 15.0,
             capframes: 0.0,
-            hold: false
+            hold: false,
         };
 
         system.capframes = resolve::get_fps() as f32 / system.speed;
@@ -36,42 +33,61 @@ impl TalkDialogSystem {
     }
 
     fn set_text(&self, ui_text: &mut UiText, dialog: &TalkDialog) {
-        ui_text.text = dialog.text[self.index.clone()][0..self.char_index.clone() + 1].to_string();
+        ui_text.text = dialog.text[dialog.index.clone()][0..dialog.char_index.clone() + 1].to_string();
     }
 
+    fn destroy_mesh(&self, entities: &Entities, dialog: &mut TalkDialog) {
+        if dialog.mesh.is_some() {
+            entities.delete(dialog.mesh.unwrap());
+            dialog.mesh = None;
+        }
+    }
 }
 
 impl<'s> System<'s> for TalkDialogSystem {
     type SystemData = (
         WriteStorage<'s, TalkDialog>,
         WriteStorage<'s, UiText>,
-        Read<'s, InputHandler<StringBindings>>
+        Read<'s, InputHandler<StringBindings>>,
+        Write<'s, Game>,
+        Entities<'s>
     );
 
-    fn run(&mut self, (mut dialogs, mut ui_texts, input): Self::SystemData) {
+    fn run(&mut self, (mut dialogs, mut ui_texts, input, mut game, mut entities): Self::SystemData) {
         let should_continue = input.action_is_down("continue").unwrap_or(false);
 
         if should_continue {
-            self.hold = true;
+            self.capframes = resolve::get_fps() as f32 / (2.0 * self.speed);
+        } else {
+            self.capframes = resolve::get_fps() as f32 / self.speed;
         }
 
-        for (dialog, ui_text) in (&mut dialogs, &mut ui_texts).join() {
+        for (dialog, ui_text, entity) in (&mut dialogs, &mut ui_texts, &*entities).join() {
+            let is_line_end = dialog.char_index == dialog.text[dialog.index.clone()].len() - 1;
 
-            if self.counter == self.capframes as usize {
-                if self.char_index < dialog.text[self.index.clone()].len() - 1 {
-                    self.char_index += 1;
+            if should_continue && is_line_end {
+                self.hold = true;
+            }
+
+            if self.counter >= self.capframes as usize {
+                if dialog.char_index < dialog.text[dialog.index.clone()].len() - 1 {
+                    dialog.char_index += 1;
                 }
                 self.counter = 0;
             }
 
             self.counter += 1;
 
-            if self.hold && !should_continue {
+            if is_line_end && self.hold && !should_continue {
                 self.hold = false;
 
-                self.char_index = 0;
-                if self.index < dialog.text.len() - 1 {
-                    self.index += 1;
+                dialog.char_index = 0;
+                if dialog.index < dialog.text.len() - 1 {
+                    dialog.index += 1;
+                } else {
+                    game.set_trigger(Trigger::DialogEnd);
+                    self.destroy_mesh(&entities, dialog);
+                    entities.delete(entity);
                 }
             }
 

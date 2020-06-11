@@ -68,6 +68,18 @@ impl Walk {
         self.counter == 0
     }
 
+    fn apply_grid_transition(&mut self, player: &mut Player) {
+        if self.active {
+            match self.direction {
+                ActorDirection::North => { player.grid_pos[1] += 1 }
+                ActorDirection::South => { player.grid_pos[1] -= 1  }
+                ActorDirection::East => { player.grid_pos[0] += 1  }
+                ActorDirection::West => { player.grid_pos[0] -= 1  }
+                _ => {}
+            };
+        }
+    }
+
     fn apply_camera_transition(&mut self, transform: &mut Transform) {
         let mut slice = self.transition_slice;
         if self.transition > 0.0 {
@@ -231,6 +243,8 @@ impl Walk {
             }
         }
     }
+
+
 }
 
 impl PlayerBehaviour for Walk {
@@ -251,6 +265,7 @@ impl PlayerBehaviour for Walk {
 
             if self.key_event.is_none() || self.counter == get_fps() - 1 {
                 self.handle();
+                self.apply_grid_transition(player);
                 self.counter = 0;
             }
 
