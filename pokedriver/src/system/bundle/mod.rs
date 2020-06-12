@@ -1,6 +1,7 @@
 mod actor;
 mod tile;
 mod dialog;
+mod misc;
 
 use amethyst::{
     core::bundle::SystemBundle,
@@ -12,6 +13,7 @@ use amethyst::{
 use crate::system::bundle::actor::ActorBundle;
 use crate::system::bundle::tile::TileBundle;
 use crate::system::bundle::dialog::DialogBundle;
+use crate::system::bundle::misc::MiscBundle;
 
 pub struct GameBundle;
 
@@ -27,6 +29,9 @@ impl<'a, 'b> SystemBundle<'a, 'b> for GameBundle {
 
         let dialog_bundle = DialogBundle;
         dialog_bundle.build(world, dispatcher)?;
+
+        let misc_bundle = MiscBundle;
+        misc_bundle.build(world, dispatcher)?;
 
 
         Ok(())

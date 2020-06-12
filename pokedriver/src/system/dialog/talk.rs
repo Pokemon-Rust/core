@@ -48,13 +48,16 @@ impl<'s> System<'s> for TalkDialogSystem {
     type SystemData = (
         WriteStorage<'s, TalkDialog>,
         WriteStorage<'s, UiText>,
+        WriteStorage<'s, Transform>,
         Read<'s, InputHandler<StringBindings>>,
         Write<'s, Game>,
         Entities<'s>
     );
 
-    fn run(&mut self, (mut dialogs, mut ui_texts, input, mut game, mut entities): Self::SystemData) {
-        let should_continue = input.action_is_down("continue").unwrap_or(false);
+    fn run(&mut self, (mut dialogs, mut ui_texts, mut transforms, input, mut game, mut entities): Self::SystemData) {
+        let should_continue = input.action_is_down("continue").unwrap_or(false) ||
+                                    input.action_is_down("cancel").unwrap_or(false);
+
 
         if should_continue {
             self.capframes = resolve::get_fps() as f32 / (2.0 * self.speed);
@@ -85,13 +88,23 @@ impl<'s> System<'s> for TalkDialogSystem {
                 if dialog.index < dialog.text.len() - 1 {
                     dialog.index += 1;
                 } else {
+                    if dialog.mesh.is_some() {
+                        game.kill_entity(dialog.mesh.unwrap());
+                    }
+                    game.kill_entity(entity);
                     game.set_trigger(Trigger::DialogEnd);
-                    self.destroy_mesh(&entities, dialog);
-                    entities.delete(entity);
                 }
             }
 
             self.set_text(ui_text, dialog);
+            if dialog.mesh.is_some() {
+                for (e, trans) in (&*entities, &mut transforms).join() {
+                    if e == dialog.mesh.unwrap() {
+                        let cam_trans = game.camera_trans.clone();
+                        trans.set_translation_xyz(cam_trans[0] + 320.0, cam_trans[1] - 640.0 + 80.0, 3.0);
+                    }
+                }
+            }
         }
     }
 }

@@ -6,10 +6,13 @@ use amethyst::{
     },
     ecs::{Component, DenseVecStorage, Entity},
     ui::{UiTransform, UiImage, UiText, Anchor, LineMode},
+    renderer::{SpriteRender, Transparent},
     assets::Handle,
 };
 
 use crate::utils::resolve;
+use crate::entity::dialog::DialogSpritetype;
+
 
 #[derive(Clone)]
 pub struct TalkDialog {
@@ -47,22 +50,15 @@ impl TalkDialog {
         text.line_mode = LineMode::Wrap;
         text.align = Anchor::TopLeft;
 
-        let texture_handle = resolve::load_texture_handle(world, "dialogs/dialog_bottom".to_string());
+        let sprite_handle = resolve::load_spritesheet_handle(world, "dialogs/sheet".to_string());
+        let sprite_render = SpriteRender {
+            sprite_sheet: sprite_handle,
+            sprite_number: DialogSpritetype::Bottom.to_sprite_index()
+        };
 
-        println!("texture_handle.id(): {}", texture_handle.id());
-
-        let image = UiImage::Texture(texture_handle);
-
-        let transform = UiTransform::new(
-            "dialog_bottom".to_string(),
-            Anchor::BottomLeft,
-            Anchor::MiddleLeft,
-            0.,
-            80.,
-            3.,
-            640.,
-            160.
-        );
+        let mut transform = Transform::default();
+        transform.set_translation_xyz(320.0, 80.0, 3.0);
+        transform.set_scale(Vector3::new(1.2,1.1,1.0));
 
         let text_transform = UiTransform::new(
             "dialog_bottom_text".to_string(),
@@ -76,8 +72,9 @@ impl TalkDialog {
         );
 
         self.mesh = Some(world.create_entity()
-            .with(transform)
-            .with(image)
+            .with(transform.clone())
+            .with(sprite_render)
+            .with(Transparent)
             .build());
 
         world.create_entity()

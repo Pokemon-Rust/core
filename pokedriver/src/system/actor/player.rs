@@ -6,6 +6,7 @@ use amethyst::{
     renderer::{SpriteRender, camera::Camera},
     core::math::Vector3
 };
+
 use crate::entity::actor::player::Player;
 use crate::state::Game;
 

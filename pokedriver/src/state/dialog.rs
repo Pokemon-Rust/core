@@ -3,6 +3,7 @@ use amethyst::{
     window::ScreenDimensions,
     core::{transform::Transform},
     renderer::camera::{Camera, Projection},
+    shred::FetchMut,
 };
 
 use crate::entity::actor::player::Player;
@@ -10,11 +11,10 @@ use crate::utils::debug;
 use crate::entity::tile::{tile::Tile};
 use crate::entity::dialog::talk_dialog::TalkDialog;
 use crate::state::{Game, Trigger};
+use std::ops::Deref;
 
 
-pub struct DialogState {
-
-}
+pub struct DialogState {}
 
 impl DialogState {
     pub fn new() -> Self {
@@ -25,6 +25,9 @@ impl DialogState {
         TalkDialog::create(world);
     }
 
+    fn fetch_game<'s>(&mut self, world: &'s mut World) -> FetchMut<'s, Game> {
+        world.write_resource::<Game>()
+    }
 }
 
 impl SimpleState for DialogState {
@@ -37,16 +40,31 @@ impl SimpleState for DialogState {
     }
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
-        data.world.maintain();
-        let mut game = data.world.write_resource::<Game>();
-        let trigger = game.get_trigger();
+        let world = &mut data.world;
+
+        let mut trigger = None;
+        let mut dead_entities = Vec::new();
+
+        {
+            let mut game = self.fetch_game(world);
+            trigger = game.get_trigger();
+            dead_entities = game.dead_entities.clone();
+            game.dead_entities.clear();
+            game.clear_trigger();
+        }
+
+        for entity in &dead_entities {
+            world.delete_entity(*entity);
+        }
 
         if trigger.is_some() {
-            let trans = match trigger.unwrap() {
-                Trigger::DialogEnd => Trans::Pop
+            let mut trans = Trans::None;
+
+            match trigger.unwrap() {
+                Trigger::DialogEnd => { trans = Trans::Pop; }
+                _ => {}
             };
 
-            game.clear_trigger();
             trans
         } else {
             Trans::None

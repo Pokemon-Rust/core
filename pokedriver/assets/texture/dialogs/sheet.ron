@@ -1,0 +1,25 @@
+/*!
+    @import /amethyst_rendy/src/sprite/mod.rs#Sprites
+    Sprites
+*/
+
+List((
+    texture_width: 585,
+    texture_height: 386,
+    sprites: [
+        (
+            // Bottom-Dialog box
+            x: 0,
+            y: 241,
+            width: 584,
+            height: 145,
+        ),
+        (
+            // Option-Dialog box
+            x: 429,
+            y: 0,
+            width: 143,
+            height: 186,
+        ),
+    ],
+))
