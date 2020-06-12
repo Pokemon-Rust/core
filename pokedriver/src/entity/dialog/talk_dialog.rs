@@ -5,9 +5,8 @@ use amethyst::{
         math::Vector3,
     },
     ecs::{Component, DenseVecStorage, Entity},
-    ui::{UiTransform, UiImage, UiText, Anchor, LineMode},
+    ui::{UiTransform, UiText, Anchor, LineMode},
     renderer::{SpriteRender, Transparent},
-    assets::Handle,
 };
 
 use crate::utils::resolve;
@@ -32,7 +31,7 @@ impl TalkDialog {
         };
 
         dialog.text.push("Hello, I'm Professor Oak.\n\nWelcome to the world of Pokemon!".to_string());
-        dialog.text.push("Your objective is simple.\n\nScrew your rival and the elite four and get to the hall of fame.".to_string());
+        dialog.text.push("Your objective is simple.\n\nScrew your rival and the elite four and get to the hall of fame. Screw your rival and the elite four and get to the hall of fame.".to_string());
 
         dialog.init(world);
     }

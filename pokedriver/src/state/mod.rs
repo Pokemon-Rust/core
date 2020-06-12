@@ -2,8 +2,8 @@ pub mod game;
 pub mod dialog;
 
 use amethyst::{
-    core::math::{Vector2, Vector3},
-    ecs::{Entity, World},
+    core::math::{Vector3},
+    ecs::{Entity},
 };
 
 #[derive(Clone)]

@@ -1,17 +1,10 @@
 use amethyst::{
     prelude::*,
-    window::ScreenDimensions,
-    core::{transform::Transform},
-    renderer::camera::{Camera, Projection},
     shred::FetchMut,
 };
 
-use crate::entity::actor::player::Player;
-use crate::utils::debug;
-use crate::entity::tile::{tile::Tile};
 use crate::entity::dialog::talk_dialog::TalkDialog;
 use crate::state::{Game, Trigger};
-use std::ops::Deref;
 
 
 pub struct DialogState {}
@@ -62,7 +55,6 @@ impl SimpleState for DialogState {
 
             match trigger.unwrap() {
                 Trigger::DialogEnd => { trans = Trans::Pop; }
-                _ => {}
             };
 
             trans

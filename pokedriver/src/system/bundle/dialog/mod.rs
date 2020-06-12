@@ -6,7 +6,6 @@ use amethyst::{
     ecs::prelude::{DispatcherBuilder, World},
     error::Error,
 };
-use crate::system::bundle::tile::static_tile::StaticTileBundle;
 use crate::system::bundle::dialog::talk::TalkDialogBundle;
 
 pub struct DialogBundle;

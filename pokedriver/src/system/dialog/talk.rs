@@ -3,9 +3,7 @@ use amethyst::{
     derive::SystemDesc,
     ecs::prelude::{Join, Read, Write, System, SystemData, WriteStorage, Entities},
     input::{InputHandler, StringBindings},
-    renderer::{SpriteRender, camera::Camera},
-    core::math::Vector3,
-    ui::{UiText, UiImage},
+    ui::{UiText},
 };
 use crate::entity::dialog::talk_dialog::TalkDialog;
 use crate::utils::resolve;

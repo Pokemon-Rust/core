@@ -47,7 +47,7 @@ impl<'s> System<'s> for PlayerSystem {
         Write<'s, Game>
     );
 
-    fn run(&mut self, (mut players, mut sprites, mut transforms, mut cameras, input, mut game): Self::SystemData) {
+    fn run(&mut self, (mut players, mut sprites, mut transforms, mut cameras, input, mut _game): Self::SystemData) {
         let mut translation: Vector3<f32> = Vector3::new(0.0, 0.0, 2.0);
 
         for (transform, _camera) in (&mut transforms, &mut cameras).join() {
