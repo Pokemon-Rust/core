@@ -23,14 +23,14 @@ use crate::system::bundle::GameBundle;
 use std::time::Duration;
 use crate::utils::resolve;
 
-pub fn start() -> amethyst::Result<()> {
+fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
 
     let app_root = application_root_dir()?;
-    let display_config_path = app_root.join("../pokedriver/config/display.ron");
+    let display_config_path = app_root.join("./config/display.ron");
 
-    let assets_dir = app_root.join("../pokedriver/assets");
-    let input_binding_config = app_root.join("../pokedriver/config/input.ron");
+    let assets_dir = app_root.join("./assets");
+    let input_binding_config = app_root.join("./config/input.ron");
 
     let game_data = GameDataBuilder::default()
         .with_bundle(TransformBundle::new())?
